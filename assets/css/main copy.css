@@ -1,0 +1,354 @@
+* {  
+  margin: 0;  
+  padding: 0;  
+}  
+
+html { transition: background-color .3s ease; }
+
+body {
+  font: 14px/1.8 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+  "Microsoft YaHei", Helvetica, Arial, sans-serif,
+  "Apple Color Emoji", "Segoe UI Emoji";
+  text-align: left;
+}
+
+p { margin: 0px 0; }
+
+ul, ol { list-style: none; }
+
+
+
+/* Responsive adjustments for smaller screens */  
+@media (max-width: 767px) {  
+  .content {  
+    max-width: 90%; /* Allow the content to take up more width on small screens */  
+    padding: 15px; /* Reduce padding on smaller screens */  
+  }  
+}  
+
+
+/* 定义本地字体 */  
+@font-face {  
+  font-family: 'fangzheng';  
+  /* 指定字体文件的路径 */  
+  /* 支持多种字体格式以确保兼容性 */  
+  src: url('../fonts/fangzheng.ttf') format('woff2'),  
+       url('../fonts/fangzheng.ttf') format('woff'),  
+       url('../fonts/fangzheng.ttf') format('truetype');  
+  font-weight: normal;  
+  font-style: normal;  
+}  
+
+/* 应用自定义字体 */  
+h1 {  
+  font-family: 'fangzheng', sans-serif;  
+} 
+
+h2 {  
+  font-family: 'fangzheng', sans-serif;  
+} 
+.mail{  
+    font-family: 'fangzheng', sans-serif; /* 使用PTSans字体，后备为sans-serif */  
+}  
+
+
+a {  
+  text-decoration: none; /* 去掉下划线 */  
+  color: inherit; /* 继承父元素的颜色，保持一致性 */  
+}  
+
+
+/* 设置字体大小 */  
+.highlight.mail {  
+  font-size: 16px; /* 根据需要调整字体大小 */  
+}  
+
+/* Fonts
+/* ================================================= */
+@font-face {
+  font-family: 'icomoon';
+  src:
+    url('../fonts/icomoon.ttf?mrs7x8') format('truetype'),
+    url('../fonts/icomoon.woff?mrs7x8') format('woff'),
+    url('../fonts/icomoon.svg?mrs7x8#icomoon') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+[class^="icon-"], [class*=" icon-"] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'icomoon' !important;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-map-pin:before {
+  content: "\e902";
+}
+.icon-moon:before {
+  content: "\e900";
+}
+.icon-sun:before {
+  content: "\e901";
+}
+.icon-quotes-left:before {
+  content: "\e977";
+}
+.icon-quotes-right:before {
+  content: "\e978";
+}
+
+
+/* Animation
+/* ================================================= */
+.animate-slide-in-down,
+.animate-slide-in-up {
+  position: relative;
+  opacity: 0;
+}
+
+.animate-slide-in-down { top: -10px; }
+
+.animate-slide-in-up { bottom: -10px; }
+
+.no-js .animate-slide-in-down,
+.no-js .animate-slide-in-up { opacity: 1; }
+
+.no-js .animate-slide-in-down { top: 0; }
+
+.no-js .animate-slide-in-up { bottom: 0; }
+
+.animate-slide-in-left { left: -100%; }
+.no-js .animate-slide-in-left { left: 0; }
+
+.animate-slide-in-right { right: -100%; }
+.no-js .animate-slide-in-right { right: 0; }
+
+
+/* Headline
+/* ================================================= */
+.vi {
+  margin: 100px auto 0;
+  max-width: 600px;
+}
+
+@media (max-width: 767px) {
+  .vi { margin-top: 50px; 
+    max-width: 90%;}
+}
+
+
+/* Quote
+/* ================================================= */
+.quote {
+  position: relative;
+  max-width: 600px;
+  overflow: hidden;
+  margin: 10px 0px;
+}
+
+.quote-line {
+  display: block;
+  position: relative;
+  height: 1px;
+  transition: all .3s ease;
+}
+
+.quote cite::before {
+  content: "-";
+  padding: 0 5px;
+}
+
+.quote-icon { position: absolute; }
+
+.quote-icon.animate-slide-in-down,
+.quote-icon.animate-slide-in-up { opacity: 0; }
+.no-js .quote-icon.animate-slide-in-down,
+.no-js .quote-icon.animate-slide-in-up { opacity: 1; }
+
+.quote-icon-start { left: 0; }
+.quote-icon-start.animate-slide-in-down { top: -10px; }
+.no-js .quote-icon-start.animate-slide-in-down { top: 0; }
+
+.quote-icon-end { right: 0; }
+.quote-icon-end.animate-slide-in-up { bottom: -10px; }
+.no-js .quote-icon-end.animate-slide-in-up { bottom: 0; }
+
+.quote-content { margin: 10px auto 0; }
+
+/* !!!!!!!! */
+.content-1 {margin: 10px auto 0;}
+.content-2 {margin: 10px auto 0;}
+.content-3 {margin: 10px auto 0;}
+
+
+/* Links
+/* ================================================= */
+.links {
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+.links a {
+  display: inline-block;
+  position: relative;
+  margin-left: 10px;
+  text-decoration: none;
+  border-bottom: 1px dotted;
+  transition: border .3s ease, color .3s ease;
+}
+
+.links a:hover { border-bottom: 1px solid; }
+
+.links a:active { top: 1px !important; }
+
+.links a:first-child { margin-left: 0; }
+
+
+/* Location
+/* ================================================= */
+.location {
+  display: flex;
+  justify-content: left;
+  align-items: left;
+  margin-top: 20px;
+}
+
+.location-icon { font-size: 16px; }
+
+.location-text {
+  margin-left: 6px;
+  font-size: 14px;
+}
+
+.location-text-2 {
+  margin-left: 6px;
+  font-size: 15px;
+}
+
+.relocating {
+  opacity: 0;
+  font-size: 13px;
+  transition: all .3s ease;
+}
+
+
+/* LIGHT MODE
+/* ================================================= */
+html { background-color: white; }
+body { color: #333; }
+::selection { background: #222; color: white; }
+h1 { color: #222; }
+.quote { color: #666; }
+.quote-icon { color: #ccc; }
+.quote-line { background: #eee; }
+a { color: #333; }
+.links a { border-bottom-color: #999; }
+.links a:hover { border-bottom-color: #333; }
+.location { color: #666; }
+.relocating { color: #ccc; }
+
+
+/* DARK MODE
+/* ================================================= */
+@media (prefers-color-scheme: dark) {
+  html { background: #121621; }
+  body { color: #6C7486; }
+  ::selection { background: #222; color: #99A3BA; }
+  h1 { color: #E4ECFA; }
+  .quote { color: #6C7486; }
+  .quote-icon { color: #3F4656; }
+  .quote-line { background: #242836; }
+  a { color: #99A3BA; }
+  .links a { border-bottom-color: #6C7486; }
+  .links a:hover { color: #E4ECFA; border-bottom-color: #99A3BA; }
+  .location { color: #6C7486; }
+}
+
+
+/* 悬停效果样式 */  
+.title-hover {  
+  position: relative;  
+  display: inline-block;  
+  cursor: pointer;  
+  
+}  
+
+.title-hover::before {  
+  content: '#';  
+
+  left: -5px; /* 调整位置 */  
+  opacity: 0;  
+  transition: opacity 0.3s ease;
+  z-index: 1;  
+  color: #ffffff; /* 提亮颜色 */  
+}  
+
+.title-hover:hover::before {  
+  opacity: 1;  
+}  
+
+
+
+/* 悬停效果样式 */  
+.title-hover {  
+  position: relative;  
+  display: inline-block;  
+  cursor: pointer;  
+}  
+
+.title-hover::before {  
+  content: '#';  
+  position: absolute;  
+  left: -20px; /* 调整位置 */  
+  opacity: 0;  
+  transition: opacity 0.3s ease;  
+  z-index: 1;  
+  color: #b6c7d8; /* Softer gray for the # symbol */  
+}  
+
+.title-hover:hover::before {  
+  opacity: 1;  
+}  
+
+.title-hover:hover {  
+  color: #b6c7d8; /* Softer gray for text on hover */  
+}  
+
+.highlight {  
+  position: relative;  
+  display: inline-block;  
+  transition: color 0.3s ease;  
+}  
+
+.highlight:hover {  
+  color: #b6c7d8; /* Softer gray for text on hover */  
+}  
+
+.highlight:hover::after {  
+  content: '';  
+  position: absolute;  
+  left: 0;  
+  bottom: 0px; /* 下划线位置 */  
+  width: 100%;  
+  height: 0.5px; /* Thinner underline height */  
+  background: #b6c7d8; /* Softer gray for underline color */  
+  animation: slide-in 0.3s forwards;  
+}  
+
+@keyframes slide-in {  
+  from {  
+    width: 0;  
+  }  
+  to {  
+    width: 100%;  
+  }  
+}  

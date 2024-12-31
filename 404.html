@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>404 - 页面未找到</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              accent: "#6366f1",
+              "dark-primary": "#0f172a",
+              "dark-secondary": "#1e293b",
+            },
+            boxShadow: {
+              glow: "0 0 20px rgba(99, 102, 241, 0.15)",
+            },
+          },
+        },
+      };
+    </script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css"
+      rel="stylesheet"
+    />
+    <style>
+      @keyframes pulse-ring {
+        0% { transform: scale(0.8); opacity: 0.5; }
+        100% { transform: scale(2); opacity: 0; }
+      }
+
+      .pulse-ring::before {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background-color: #6366f1;
+        animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        z-index: -1;
+      }
+    </style>
+  </head>
+  <body class="bg-gradient-to-br from-dark-primary to-dark-secondary text-gray-200 flex items-center justify-center min-h-screen">
+    <!-- 背景装饰 -->
+    <div class="fixed inset-0 -z-10 opacity-30">
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(99,102,241,0.1),transparent_50%)]"></div>
+    </div>
+
+    <!-- 404卡片 -->
+    <div class="bg-dark-secondary/50 backdrop-blur-xl p-10 rounded-2xl shadow-glow max-w-md w-full mx-4 border border-gray-700/50">
+      <!-- 404图标 -->
+      <div class="flex justify-center mb-8">
+        <i class="ri-ghost-line text-5xl text-accent animate-pulse"></i>
+      </div>
+
+      <!-- 标题 -->
+      <h1 class="text-4xl font-bold mb-4 text-center bg-gradient-to-r from-accent to-violet-500 bg-clip-text text-transparent">
+        404
+      </h1>
+      <p class="text-xl text-center mb-8 text-gray-400">
+        页面未找到
+      </p>
+
+      <!-- 提示信息 -->
+      <div class="bg-accent/10 border border-accent/20 text-accent p-4 rounded-lg mb-6 flex items-center">
+        <i class="ri-compass-3-line mr-2 text-lg"></i>
+        <p>不确定性才是世界本来的模样</p>
+      </div>
+
+      <!-- 返回按钮 -->
+      <a href="/" 
+         class="w-full bg-gradient-to-r from-accent to-violet-500 text-white py-4 rounded-xl font-semibold hover:opacity-90 transition-all duration-300 shadow-lg shadow-accent/25 flex items-center justify-center space-x-2 group">
+        <i class="ri-home-line group-hover:-translate-x-1 transition-transform duration-300"></i>
+        <span class="group-hover:-translate-x-1 transition-transform duration-300">返回首页</span>
+      </a>
+
+      <!-- 有趣的提示 -->
+      <div class="mt-8 text-center space-y-2">
+        <p class="text-sm text-gray-400 flex items-center justify-center group cursor-pointer" onclick="showRandomTip()">
+          <i class="ri-lightbulb-line mr-2 group-hover:text-yellow-400 transition-colors duration-300"></i>
+          <span id="random-tip">点击查看随机提示</span>
+        </p>
+      </div>
+    </div>
+
+    <script>
+      const tips = [
+        "你就像黑夜，拥有寂静与群星",
+        "你的沉默明亮如灯，简单如指环",
+        "你的沉默就是星星的沉默，遥远而明亮",
+        "恭喜你发现了这个神秘的404空间！",
+        "更宽广的愉悦，更辽阔的自由",
+        "轨道与旷野"
+      ];
+
+      function showRandomTip() {
+        const tipElement = document.getElementById('random-tip');
+        const currentTip = tipElement.textContent;
+        let newTip;
+        
+        do {
+          newTip = tips[Math.floor(Math.random() * tips.length)];
+        } while (newTip === currentTip);
+        
+        tipElement.style.opacity = '0';
+        setTimeout(() => {
+          tipElement.textContent = newTip;
+          tipElement.style.opacity = '1';
+        }, 200);
+      }
+
+      // 添加渐变效果
+      const tipElement = document.getElementById('random-tip');
+      tipElement.style.transition = 'opacity 0.2s ease-in-out';
+    </script>
+  </body>
+</html>

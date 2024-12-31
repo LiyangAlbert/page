@@ -1,0 +1,369 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+/*   
+外边距margin和内边距padding都设置为 0
+消除浏览器默认的样式,使得所有元素的布局更加一致
+*/
+
+html {
+  transition: background-color 0.3s ease;
+}
+/*
+背景颜色的过渡效果持续时间,使用ease过渡曲线
+当背景颜色发生变化时,变化会显得更加平滑
+*/
+
+body {
+  font: 16px/1.8 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Microsoft YaHei", Helvetica, Arial, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji";
+  text-align: center;
+}
+/*
+这段代码设置了body的字体样式: 字体大小为 16 像素,行高为 1.8
+使用了一系列字体作为后备选项,确保在不同操作系统和设备上都有合适的显示效果
+文本对齐方式设置为居中
+*/
+
+p {
+  margin: 20px 0;
+}
+/* 
+这段代码为段落元素设置了上下外边距margin
+以增加段落之间的间距
+*/
+
+ul,
+ol {
+  list-style: none;
+}
+/*
+这段代码去除了无序列表ul和有序列表ol的默认列表样式(如圆点或数字)
+使得列表项没有任何前缀
+*/
+
+/* 自定义字体
+/* ================================================= */
+
+/*
+@font-face {  
+  font-family: 'CustomFont1';  
+  src: url('fonts/CustomFont1.woff2') format('woff2'),  
+       url('fonts/CustomFont1.woff') format('woff'),  
+       url('fonts/CustomFont1.ttf') format('truetype');  
+  font-weight: normal;  
+  font-style: normal;  
+} 
+自定义某个字体 
+*/
+
+/*
+h1 {  
+  font-family: 'CustomFont1', sans-serif;  
+} 
+h1使用自定义字体
+*/
+
+/* 图标字体 icomoon
+/* ================================================= */
+/*
+  - 图标字体:图标字体是一种特殊的字体，其中每个字符对应一个图标
+    这种方法允许您使用 CSS 来控制图标的大小、颜色和其他样式，就像处理文本一样
+  - Icomoon:Icomoon是一个流行的图标字体生成工具，允许用户创建自定义图标字体并下载
+    用户可以选择所需的图标并生成相应的字体文件和 CSS
+  - 注意，需要单独去https://icomoon.io/下载对应静态文件解压后放入项目中
+    需要根据 Icomoon 生成的图标字体的自行命名具体类名
+    教程: https://blog.csdn.net/weixin_45405395/article/details/105688961
+  - 可以使用 CSS 来调整图标的大小、颜色等样式, 例如:
+    .icon-home, .icon-user, .icon-settings {  
+    font-size: 24px;  
+    color: #333;  
+    margin: 10px;
+}  
+*/
+@font-face {
+  font-family: "icomoon";
+  /* 定义了一个名为 icomoon 的字体族
+  这个名称将在后续的 CSS 中用于引用该字体 */
+  src: /*指定字体文件的来源*/ url("../fonts/icomoon.ttf?mrs7x8")
+      format("truetype"),
+    /* 指向truetype 字体文件 */ url("../fonts/icomoon.woff?mrs7x8")
+      format("woff"),
+    /* 指向 Web Open Font Format 字体文件 */
+      url("../fonts/icomoon.svg?mrs7x8#icomoon") format("svg"); /* 指向 SVG 字体文件, 通常用于在某些老旧浏览器中*/
+  font-weight: normal;
+  font-style: normal; /* 指定字体的粗细和样式均为正常 */
+}
+
+[class^="icon-"]/*选择所有类名以 icon- 开头的元素*/,
+[class*=" icon-"]/*选择所有类名中包含 icon- 的元素,这允许在类名中间使用 icon-，例如 my-icon*/ {
+  /* 强制使用 icomoon 字体
+    使用 !important 是为了确保即使有其他样式(例如浏览器扩展)影响字体
+    也能优先使用 icomoon 字体 */
+
+  /*字体样式设置*/
+  font-family: "icomoon" !important;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* 字体渲染优化 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-map-pin:before {
+  content: "\e902";
+}
+.icon-moon:before {
+  content: "\e900";
+}
+.icon-sun:before {
+  content: "\e901";
+}
+.icon-quotes-left:before {
+  content: "\e977";
+}
+.icon-quotes-right:before {
+  content: "\e978";
+}
+/*以上定义避免直接使用 Unicode
+  使得在html中直接使用<span class="icon-map-pin"></span>即可显示图标
+  分别对应地图图钉、月亮、太阳、左引号、右引号图标
+*/
+
+/* 动画过渡效果
+/* ================================================= */
+/* 上下滑动动画 */
+.animate-slide-in-down,
+.animate-slide-in-up {
+  position: relative;
+  opacity: 0;
+} /* 设置这两个元素的初始状态为不可见 */
+
+.animate-slide-in-down {
+  top: -10px;
+} /* 设置down元素的初始位置, 位于最终位置上方10像素 */
+
+.animate-slide-in-up {
+  bottom: -10px;
+} /* 设置up元素的初始位置, 位于最终位置下方10像素 */
+
+.no-js .animate-slide-in-down,
+.no-js .animate-slide-in-up {
+  opacity: 1;
+}
+.no-js .animate-slide-in-down {
+  top: 0;
+}
+.no-js .animate-slide-in-up {
+  bottom: 0;
+} /* 当浏览器不支持 JavaScript 时, 设置这两个元素为可见且位于正常位置 */
+
+/* 左右滑动动画 */
+.animate-slide-in-left {
+  left: -100%;
+} /* 设置left元素的初始位置, 位于最终位置左侧100%, 使其在视口外, 从左侧滑入 */
+.no-js .animate-slide-in-left {
+  left: 0;
+} /* 当浏览器不支持 JavaScript 时, 设置left元素直接位于最终位置 */
+
+.animate-slide-in-right {
+  right: -100%;
+} /* 设置right元素的初始位置, 位于最终位置右侧100%, 使其在视口外, 从右侧滑入 */
+.no-js .animate-slide-in-right {
+  right: 0;
+} /* 当浏览器不支持 JavaScript 时, 设置right元素直接位于最终位置 */
+
+/* Headline样式
+/* ================================================= */
+.vi {
+  margin: 100px auto 0;
+  max-width: 780px;
+} /* 设置标题的外边距margin为100像素,底部外边距为0,左右外边距自动(水平居中) */
+
+@media (max-width: 767px) {
+  .vi {
+    margin-top: 50px;
+  }
+} /* 响应式设计, 当屏幕尺寸小于767像素时, 设置顶部外边距为50像素 */
+
+/* Quote样式
+/* ================================================= */
+.quote {
+  position: relative;
+  overflow: hidden;
+  margin: 40px 20px;
+} /* 隐藏超出边界的内容, 设置外边距为顶部40像素,左右20像素,底部无外边距 */
+
+.quote-line {
+  display: block;
+  position: relative;
+  height: 1px;
+  transition: all 0.3s ease;
+} /* 设置分隔线的样式: 设置为块级元素, 设置高度为1像素, 添加平滑过渡效果，使变化的属性在 0.3 秒内以缓和方式进行*/
+
+.quote cite::before {
+  content: "-"; /* 设置引用前的破折号内容 */
+  padding: 0 5px; /* 添加左右内边距以调整破折号与作者名的距离 */
+} /* 在引用作者之前显示一个破折号 */
+
+.quote-icon {
+  position: absolute; /* 设置引用图标的定位为绝对定位 */
+} /* 为引用图标定义绝对定位属性，使其相对于其最近的定位祖先元素定位 */
+
+.quote-icon.animate-slide-in-down,
+.quote-icon.animate-slide-in-up {
+  opacity: 0; /* 上下滑动动画开始前, 设置图标的初始状态为不可见 */
+} /* 同时适用两种动画效果时，设置图标在动画开始时的透明度为0 */
+
+.no-js .quote-icon.animate-slide-in-down,
+.no-js .quote-icon.animate-slide-in-up {
+  opacity: 1; /* 当浏览器不支持 JavaScript 时, 设置图标为可见 */
+} /* 设置在没有JavaScript支持的情况下，动画图标的可见性 */
+
+.quote-icon-start {
+  left: 0; /* start引用图标(上引号)左侧对齐 */
+}
+.quote-icon-start.animate-slide-in-down {
+  top: -10px; /* 向下滑动动画中，图标的初始顶部偏移量设为-10px */
+}
+.no-js .quote-icon-start.animate-slide-in-down {
+  top: 0; /* 在无JavaScript支持时，设置图标顶部偏移量为0 */
+}
+
+.quote-icon-end {
+  right: 0; /* end引用图标(下引号)右侧对齐 */
+}
+.quote-icon-end.animate-slide-in-up {
+  bottom: -10px; /* 向上滑动动画中，图标的初始底部偏移量设为-10px */
+}
+.no-js .quote-icon-end.animate-slide-in-up {
+  bottom: 0; /* 在无JavaScript支持时，设置图标底部偏移量为0 */
+}
+
+.quote-content {
+  margin: 30px auto 0; /* 设置引用内容模块的外边距，上部30px，左、右居中 */
+}
+
+.quote-author {
+  margin: 10px auto 30px; /* 设置引用作者模块的外边距，上部10px，下部30px，左右居中 */
+}
+
+/* 链接模块
+/* ================================================= */
+.links {
+  margin-top: 40px; /* 设置链接块的顶部外边距为40px */
+  font-size: 14px; /* 设置链接的字体大小为14px */
+}
+
+.links a {
+  display: inline-block; /* 将链接设置为内联块元素以便于排版 */
+  position: relative; /* 设置链接的相对定位，用于后续绝对定位元素的参考 */
+  margin-left: 10px; /* 设置每个链接的左外边距为10px */
+  text-decoration: none; /* 去掉链接的下划线 */
+  border-bottom: 1px dotted; /* 添加一个虚线的下边框 */
+  transition: border 0.3s ease, color 0.3s ease; /* 定义边框和颜色的过渡效果 */
+}
+
+.links a:hover {
+  border-bottom: 1px solid; /* 当鼠标悬停在链接上时，将下边框的样式更改为实线 */
+}
+
+.links a:active {
+  top: 1px !important; /* 当链接被激活时（例如被点击），将链接下移1px */
+}
+
+.links a:first-child {
+  margin-left: 0; /* 第一个链接不设置左外边距 */
+}
+
+/* 地理位置模块
+/* ================================================= */
+.location {
+  display: flex; /* 使用 flexbox 布局 */
+  justify-content: center; /* 在主轴上使子元素水平居中对齐 */
+  align-items: center; /* 在交叉轴上使子元素垂直居中对齐 */
+  margin-top: 40px; /* 设置上部外边距为40px */
+}
+
+.location-icon {
+  font-size: 14px; /* 设置位置图标的字体大小为14px */
+}
+
+.location-text {
+  margin-left: 6px; /* 设置位置文本的左外边距为6px，以创建图标与文本之间的间距 */
+  font-size: 13px; /* 设置位置文本的字体大小为13px */
+}
+
+.relocating {
+  opacity: 0; /* 设置 relocating 元素的初始透明度为0（不可见） */
+  font-size: 13px; /* 设置 relocating 元素的字体大小为13px */
+  transition: all 0.3s ease; /* 定义所有属性在0.3秒内平滑变化 */
+}
+
+
+/* LIGHT MODE ====================================== */
+/*
+html { background-color: white; }
+body { color: #333; }
+::selection { background: #222; color: white; }
+h1 { color: #222; }
+.quote { color: #666; }
+.quote-icon { color: #ccc; }
+.quote-line { background: #eee; }
+a { color: #333; }
+.links a { border-bottom-color: #999; }
+.links a:hover { border-bottom-color: #333; }
+.location { color: #666; }
+.relocating { color: #ccc; }
+*/
+
+
+
+
+/* DARK MODE  
+/* ================================================= */
+@media (prefers-color-scheme: dark) {
+  /* 媒体查询，针对用户设置为深色模式的情况 */
+  html {
+    background: #121621; /* 设置背景色为深色以适应深色模式 */
+  }
+  body {
+    color: #6c7486; /* 设置主体文本颜色为淡灰色，以提升可读性 */
+  }
+  ::selection {
+    background: #222; /* 设置文本高亮选择时的背景色为稍深的色调 */
+    color: #99a3ba; /* 设置文本选择时的文字颜色为淡灰蓝色 */
+  }
+  h1 {
+    color: #e4ecfa; /* 设置标题 h1 的颜色为淡紫色以突出显示 */
+  }
+  .quote {
+    color: #6c7486; /* 设置引用文本的颜色为淡灰色 */
+  }
+  .quote-icon {
+    color: #3f4656; /* 设置引用图标的颜色为较深的灰色 */
+  }
+  .quote-line {
+    background: #242836; /* 设置引用线的背景颜色为暗灰色 */
+  }
+  a {
+    color: #99a3ba; /* 设置链接的颜色为淡灰蓝色 */
+  }
+  .links a {
+    border-bottom-color: #6c7486; /* 设置链接的下边框颜色为淡灰色以适应深色模式 */
+  }
+  .links a:hover {
+    color: #e4ecfa; /* 当鼠标悬停在链接上时，将链接颜色更改为淡紫色 */
+    border-bottom-color: #99a3ba; /* 悬停时，链接的下边框颜色更改为淡灰蓝色 */
+  }
+  .location {
+    color: #6c7486; /* 设置位置块的文本颜色为淡灰色以保持一致 */
+  }
+}
