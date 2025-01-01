@@ -73,6 +73,7 @@ h3 {
   -moz-osx-font-smoothing: grayscale;
 }
 
+
 .icon-map-pin:before {
   content: "\e902";
 }
@@ -88,7 +89,21 @@ h3 {
 .icon-quotes-right:before {
   content: "\e978";
 }
-
+.icon-color:before {
+  content: "\e907";
+}
+.icon-calendar:before {
+  content: "\e953";
+}
+.icon-unlocked:before {
+  content: "\e990";
+}
+.icon-list:before {
+  content: "\e9ba";
+}
+.icon-focus:before {
+  content: "\ea54";
+}
 
 /* Animation
 /* ================================================= */

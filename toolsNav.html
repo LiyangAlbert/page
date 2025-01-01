@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh" class="no-js">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>工具导航 - LiyangAlbert</title>
+    <meta name="Description" content="Personal Tools Navigation Page" />
+    <meta name="color-scheme" content="dark light" />
+    <script>
+      (function (H) {
+        H.className = H.className.replace(/\bno-js\b/, "js");
+      })(document.documentElement);
+    </script>
+    <link rel="stylesheet" type="text/css" href="assets/css/main.css" />
+    <style>
+      .tools-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        max-width: 1000px;
+        margin: 40px auto;
+        padding: 0 20px;
+      }
+
+      .tool-card {  
+        background: #242836;  
+        border-radius: 8px;  
+        padding: 20px;  
+        text-align: center;  
+        transition: all 0.3s ease;  
+        position: relative;  
+        overflow: hidden;  
+      }  
+      
+      .tool-card:hover {  
+        background: #2c3242; /* 稍微亮一些的背景色 */  
+        transform: translateY(-5px);  
+      }  
+
+      .tool-card {  
+        cursor: pointer; /* 鼠标悬停时显示手型光标 */  
+      }  
+      
+      @media (prefers-color-scheme: light) {  
+        .tool-card {  
+          background: #f4f4f4;  
+        }  
+      
+        .tool-card:hover {  
+          background: #e6e6e6;  
+        }  
+      }  
+
+      .tool-card-icon {
+        font-size: 48px;
+        margin-bottom: 15px;
+        color: #99A3BA;
+      }
+
+      .tool-card-title {
+        font-size: 18px;
+        margin-bottom: 10px;
+        color: #E4ECFA;
+      }
+
+      .tool-card-description {
+        font-size: 14px;
+        color: #6C7486;
+        margin-bottom: 15px;
+      }
+
+      @media (prefers-color-scheme: light) {
+        .tool-card {
+          background: #f4f4f4;
+        }
+
+        .tool-card-icon {
+          color: #333;
+        }
+
+        .tool-card-title {
+          color: #222;
+        }
+
+        .tool-card-description {
+          color: #666;
+        }
+      }
+
+      .animate-fade-in {
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeIn 0.8s ease-out forwards;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      
+
+    </style>
+  </head>
+
+  <body>
+    <div class="vi">
+      <h1 class="animate-slide-in-down">工具导航</h1>
+      <h3 class="animate-slide-in-down">Personal Tools Collection</h3>
+      
+      <div class="tools-grid">
+        <div class="tool-card animate-fade-in" style="animation-delay: 0.2s;" onclick="window.location.href='tools/target.html'">  
+            <div class="tool-card-icon">  
+              <i class="icon icon-list"></i>  
+            </div>  
+            <h4 class="tool-card-title">目标管理</h4>  
+            <p class="tool-card-description">两级目标管理工具</p>  
+          </div>
+
+        <div class="tool-card animate-fade-in" style="animation-delay: 0.4s;" onclick="window.location.href='tools/colorbox.html'">
+          <div class="tool-card-icon">
+            <i class="icon icon-color"></i>
+          </div>
+          <h4 class="tool-card-title">配色方案</h4>
+          <p class="tool-card-description">论文、课件常用色卡</p>
+        </div>
+
+        <div class="tool-card animate-fade-in" style="animation-delay: 0.6s;" onclick="window.location.href='tools/focus.html'">
+          <div class="tool-card-icon">
+            <i class="icon icon-focus"></i>
+          </div>
+          <h4 class="tool-card-title">专注模式</h4>
+          <p class="tool-card-description">全屏显示当前时间</p>
+          <a href="unit-convert.html" class="absolute inset-0"></a>
+        </div>
+
+        <div class="tool-card animate-fade-in" style="animation-delay: 0.8s;" onclick="window.location.href='tools/countdown.html'">
+          <div class="tool-card-icon">
+            <i class="icon icon-calendar"></i>
+          </div>
+          <h4 class="tool-card-title">重要日期</h4>
+          <p class="tool-card-description">倒数日</p>
+          <a href="text-tools.html" class="absolute inset-0"></a>
+        </div>
+
+        <div class="tool-card animate-fade-in" style="animation-delay: 1.0s;" onclick="window.location.href='tools/text.html'">
+          <div class="tool-card-icon">
+            <i class="icon icon-unlocked"></i>
+          </div>
+          <h4 class="tool-card-title">文本加密</h4>
+          <p class="tool-card-description">提供基础的AES加密</p>
+          <a href="regex-test.html" class="absolute inset-0"></a>
+        </div>
+
+        <div class="tool-card animate-fade-in" style="animation-delay: 1.2s;" onclick="window.location.href='tools/cite.html'">
+          <div class="tool-card-icon">
+            <i class="icon icon-quotes-left"></i>
+          </div>
+          <h4 class="tool-card-title">文章引用</h4>
+          <p class="tool-card-description">生成标准引用格式</p>
+          <a href="dev-tools.html" class="absolute inset-0"></a>
+        </div>
+      </div>
+
+      <div class="links">
+        <a href="index.html" class="animate-slide-in-down">返回主页</a>
+        <a href="https://github.com/liyangalbert" class="animate-slide-in-down">GitHub</a>
+      </div>
+
+      <div class="end animate-slide-in-down">
+        <p>
+          工具集 - 基于Claude 3.5 Sonnet的生成代码 - 持续更新中
+        </p>
+      </div>
+    </div>
+
+    <script src="assets/vendors/jquery-3.3.1.min.js"></script>
+    <script>
+      $(function () {
+        var SLIDE_IN_DOWN = { opacity: 1, top: 0 };
+        var SLIDE_IN_UP = { opacity: 1, bottom: 0 };
+
+        function animate(selector, properties, delay, options) {
+          delay = delay || 0;
+          return $(selector)
+            .delay(delay)
+            .animate(properties, options)
+            .promise();
+        }
+
+        function executeAnimations() {
+          $.when()
+            .then(animateTitle)
+            .then(animateTools)
+            .then(animateLinks)
+            .then(animateLocation);
+        }
+
+        function animateTitle() {
+          return $.when(
+            animate("h1", SLIDE_IN_DOWN),
+            animate("h3", SLIDE_IN_DOWN, 200)
+          );
+        }
+
+        function animateTools() {
+          var DELAY_STEP = 200;
+          var elements = $(".tool-card");
+          var concurrent = $.makeArray(elements).map(function (element, index) {
+            return animate(element, { opacity: 1, top: 0 }, index * DELAY_STEP);
+          });
+
+          return $.when.apply($, concurrent);
+        }
+
+        function animateLinks() {
+          var DELAY_STEP = 200;
+          var elements = $(".links a");
+          var concurrent = $.makeArray(elements).map(function (element, index) {
+            return animate(element, SLIDE_IN_DOWN, index * DELAY_STEP);
+          });
+
+          return $.when.apply($, concurrent);
+        }
+
+        function animateLocation() {
+          return $.when(
+            animate(".location-icon", SLIDE_IN_UP),
+            animate(".location-text", SLIDE_IN_DOWN)
+          ).then(function () {
+            return animate(".end", SLIDE_IN_DOWN);
+          });
+        }
+
+        executeAnimations();
+      });
+    </script>
+  </body>
+</html>

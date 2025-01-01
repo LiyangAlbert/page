@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>色彩调色板</title>
+    <link rel="stylesheet" type="text/css" href="assets/css/main.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // 在 Tailwind 配置中启用暗黑模式
+        tailwind.config = {
+            darkMode: 'class'
+        }
+    </script>
+    <style>
+        body {
+            user-select: none;
+            transition: background-color 0.3s, color 0.3s;
+        }
+    </style>
+</head>
+<body class="bg-white dark:bg-gray-900 text-gray-800 dark:text-white min-h-screen p-6">
+    <div class="container mx-auto">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-center flex-grow">色彩调色板</h1>
+            <button id="theme-toggle" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+                <svg id="theme-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <path d="M12 1v2"></path>
+                    <path d="M12 21v2"></path>
+                    <path d="m4.22 4.22 1.42 1.42"></path>
+                    <path d="m18.36 18.36 1.42 1.42"></path>
+                    <path d="M1 12h2"></path>
+                    <path d="M21 12h2"></path>
+                    <path d="m4.22 19.78 1.42-1.42"></path>
+                    <path d="m18.36 5.64 1.42-1.42"></path>
+                </svg>
+            </button>
+        </div>
+        <div id="palettes" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+    </div>
+
+    <div id="toast" class="fixed top-4 right-4 px-4 py-2 rounded bg-green-600 text-white hidden"></div>
+
+    <script>
+        // 预定义的色彩搭配方案，现在支持不同数量的颜色
+        const colorPalettes = [
+            {
+                name: "现代蓝灰",
+                colors: ["#2C3E50", "#34495E", "#7F8C8D"]
+            },
+            {
+                name: "柔和自然",
+                colors: ["#A8C0CC", "#D5E8E4"]
+            },
+            {
+                name: "深夜科技",
+                colors: ["#1A1A2E", "#16213E", "#0F3460", "#E94560"]
+            },
+            {
+                name: "活力渐变",
+                colors: ["#FF6B6B", "#4ECDC4"]
+            },
+            {
+                name: "优雅中性",
+                colors: ["#36454F", "#708090", "#B0C4DE"]
+            }
+        ];
+
+        // 主题切换逻辑
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+
+        function setTheme(theme) {
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+                themeIcon.innerHTML = `
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                `;
+            } else {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+                themeIcon.innerHTML = `
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <path d="M12 1v2"></path>
+                    <path d="M12 21v2"></path>
+                    <path d="m4.22 4.22 1.42 1.42"></path>
+                    <path d="m18.36 18.36 1.42 1.42"></path>
+                    <path d="M1 12h2"></path>
+                    <path d="M21 12h2"></path>
+                    <path d="m4.22 19.78 1.42-1.42"></path>
+                    <path d="m18.36 5.64 1.42-1.42"></path>
+                `;
+            }
+        }
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+            setTheme(currentTheme === 'light' ? 'dark' : 'light');
+            renderPalettes(); // 重新渲染以更新样式
+        });
+
+        // 初始主题设置
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            setTheme(savedTheme);
+        } else {
+            // 默认跟随系统主题
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                setTheme('dark');
+            }
+        }
+
+        // 显示Toast通知
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 2000);
+        }
+
+        // 复制颜色
+        function copyColor(color) {
+            navigator.clipboard.writeText(color).then(() => {
+                showToast(`颜色 ${color} 已复制`);
+            });
+        }
+
+        // 复制整个色卡
+        function copyPalette(colors) {
+            const paletteText = colors.join(', ');
+            navigator.clipboard.writeText(paletteText).then(() => {
+                showToast(`色卡已复制`);
+            });
+        }
+
+        // 渲染色彩调色板
+        function renderPalettes() {
+            const palettesContainer = document.getElementById('palettes');
+            palettesContainer.innerHTML = ''; // 清空之前的内容
+            
+            colorPalettes.forEach((palette) => {
+                const paletteElement = document.createElement('div');
+                paletteElement.className = 'bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-md overflow-hidden transform transition-all hover:scale-105 p-4';
+                
+                // 标题和复制按钮区域
+                const paletteHeader = document.createElement('div');
+                paletteHeader.className = 'flex justify-between items-center mb-3';
+                
+                const nameSpan = document.createElement('span');
+                nameSpan.textContent = palette.name;
+                nameSpan.className = 'text-sm font-medium text-gray-700 dark:text-gray-300';
+                
+                const copyButton = document.createElement('button');
+                copyButton.className = 'p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors';
+                copyButton.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-white">
+                        <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
+                        <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
+                    </svg>
+                `;
+                
+                copyButton.addEventListener('click', () => copyPalette(palette.colors));
+                
+                paletteHeader.appendChild(nameSpan);
+                paletteHeader.appendChild(copyButton);
+                paletteElement.appendChild(paletteHeader);
+                
+                // 颜色块
+                const colorsContainer = document.createElement('div');
+                colorsContainer.className = 'flex items-center space-x-3';
+                
+                palette.colors.forEach((color) => {
+                    const colorBlock = document.createElement('div');
+                    // 修改为圆形，并增加间距
+                    colorBlock.className = 'w-10 h-10 rounded-full relative group cursor-pointer shadow-md';
+                    colorBlock.style.backgroundColor = color;
+                    
+                    colorBlock.addEventListener('click', () => copyColor(color));
+                    
+                    // 悬hover效果
+                    const hoverOverlay = document.createElement('div');
+                    hoverOverlay.className = 'absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 bg-black bg-opacity-50 rounded-full transition-opacity';
+                    
+                    const copyIcon = document.createElement('svg');
+                    copyIcon.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect>
+                            <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>
+                        </svg>
+                    `;
+                    
+                    hoverOverlay.appendChild(copyIcon);
+                    colorBlock.appendChild(hoverOverlay);
+                    colorsContainer.appendChild(colorBlock);
+                });
+                
+                paletteElement.appendChild(colorsContainer);
+                palettesContainer.appendChild(paletteElement);
+            });
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', renderPalettes);
+    </script>
+<script>window.parent.postMessage({ action: "ready" }, "*"); 
+ 
+window.console = new Proxy(console, {
+  get(target, prop) {
+    if (['log', 'warn', 'error'].includes(prop)) {
+      return new Proxy(target[prop], {
+        apply(fn, thisArg, args) {
+          fn.apply(thisArg, args);
+          window.parent.postMessage({ action: 'console', 
+            type: prop, 
+            args: args.map((arg) => {
+              try {
+                return JSON.stringify(arg).replace(/^["']|["']$/g, '');
+              } catch (e) {
+                return arg;
+              }
+            }) 
+          }, '*');
+        }
+      });
+    }
+    return target[prop];
+  }
+});
+</script></body>
+</html>

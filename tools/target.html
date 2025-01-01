@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>目标管理</title>
+
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Remix 图标 -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css"
+      rel="stylesheet"
+    />
+    <!-- 引入 GSAP 动画库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  </head>
+  <body
+    class="bg-gradient-to-br from-[#121827] via-[#1A2238] to-[#121827] text-gray-100 min-h-screen p-4 overflow-x-hidden"
+  >
+    <!-- 背景装饰元素 -->
+    <div class="absolute inset-0 pointer-events-none opacity-30">
+      <div
+        class="absolute top-0 left-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl"
+      ></div>
+      <div
+        class="absolute bottom-0 right-0 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl"
+      ></div>
+    </div>
+
+    <!-- 主容器 -->
+    <div class="container mx-auto max-w-6xl relative z-10">
+      <!-- 页面标题 -->
+      <header class="mb-12 text-center">
+        <br />
+        <h1 class="text-5xl font-extrabold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-teal-400">
+          <!-- 目标管理-->
+        </h1>
+        <p class="text-gray-400 max-w-2xl mx-auto">
+          <!-- 数据将存储在本地浏览器LocalStorage/goalCategories -->
+        </p>
+      </header>
+
+      <!-- 目标类别容器 -->
+      <div
+        id="categoryContainer"
+        class="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
+      >
+        <!-- 目标类别卡片将在这里动态生成 -->
+      </div>
+
+      <!-- 添加新目标类别按钮 -->
+      <div class="text-center mt-10">
+        <button
+          onclick="addNewCategory()"
+          class="group relative px-8 py-3 rounded-full bg-gradient-to-r from-indigo-500 to-teal-500 text-white font-semibold hover:scale-105 transition-transform duration-300 ease-in-out"
+        >
+          <span
+            class="absolute inset-0 bg-gradient-to-r from-indigo-600 to-teal-600 opacity-0 group-hover:opacity-20 rounded-full transition-all duration-300"
+          ></span>
+          <i class="ri-add-line mr-2"></i>添加新目标类别
+        </button>
+      </div>
+    </div>
+
+
+    <!-- 底部链接 -->  
+    <footer class="text-center mt-10">  
+        <a   
+            href="../index.html"   
+            target="_blank"   
+            class="group relative px-6 py-2 rounded-full bg-[#2C3654] text-gray-300   
+                   hover:bg-gradient-to-r hover:from-indigo-500 hover:to-teal-500   
+                   hover:text-white transition-all duration-300 ease-in-out flex items-center   
+                   justify-center mx-auto w-48 space-x-2"  
+        >  
+            <i class="ri-home-line transition-transform group-hover:scale-110"></i>  
+            <span>返回主页</span>  
+            <span class="absolute inset-0 bg-gradient-to-r from-indigo-600 to-teal-600   
+                         opacity-0 group-hover:opacity-20 rounded-full transition-all   
+                         duration-300"></span>  
+        </a>  
+    </footer>  
+
+    <!-- 目标类别模态框 -->
+    <div
+      id="categoryModal"
+      class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center hidden"
+    >
+      <div
+        class="bg-[#1E2745] rounded-2xl p-8 w-[500px] shadow-2xl transform transition-all duration-300 scale-95 opacity-0"
+      >
+        <h2
+          id="modalTitle"
+          class="text-3xl mb-6 text-center text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-teal-400"
+        >
+          添加新目标类别
+        </h2>
+        <div class="space-y-6">
+          <!-- 类别名称输入 -->
+          <input
+            type="text"
+            id="categoryNameInput"
+            placeholder="输入类别名称"
+            class="w-full p-4 bg-[#2C3654] rounded-xl text-white focus:ring-2 focus:ring-indigo-500 transition-all"
+          />
+
+          <!-- 颜色选择 -->
+          <div class="grid grid-cols-5 gap-4">
+            <button
+              onclick="selectColor('indigo')"
+              class="color-select bg-indigo-500 h-12 rounded-lg hover:scale-110 transition-transform"
+              data-color="indigo"
+            ></button>
+            <button
+              onclick="selectColor('teal')"
+              class="color-select bg-teal-500 h-12 rounded-lg hover:scale-110 transition-transform"
+              data-color="teal"
+            ></button>
+            <button
+              onclick="selectColor('purple')"
+              class="color-select bg-purple-500 h-12 rounded-lg hover:scale-110 transition-transform"
+              data-color="purple"
+            ></button>
+            <button
+              onclick="selectColor('pink')"
+              class="color-select bg-pink-500 h-12 rounded-lg hover:scale-110 transition-transform"
+              data-color="pink"
+            ></button>
+            <button
+              onclick="selectColor('blue')"
+              class="color-select bg-blue-500 h-12 rounded-lg hover:scale-110 transition-transform"
+              data-color="blue"
+            ></button>
+          </div>
+
+          <!-- 隐藏的颜色选择输入 -->
+          <input type="hidden" id="selectedColor" value="indigo" />
+
+          <!-- 模态框操作按钮 -->
+          <div class="flex justify-center space-x-4">
+            <button
+              onclick="saveCategoryModal()"
+              class="px-8 py-3 bg-gradient-to-r from-indigo-500 to-teal-500 text-white rounded-full hover:scale-105 transition-transform"
+            >
+              保存
+            </button>
+            <button
+              onclick="closeCategoryModal()"
+              class="px-8 py-3 bg-[#2C3654] text-gray-300 rounded-full hover:bg-[#3A4568] transition-colors"
+            >
+              取消
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 自定义样式 -->
+    <style>
+      /* 复选框样式 */
+      .custom-checkbox input:checked ~ .checkbox-custom {
+        border-color: #4ade80;
+        background-color: #4ade80;
+      }
+      .custom-checkbox input:checked ~ .checkbox-custom:after {
+        display: block;
+      }
+    </style>
+
+    <!-- JavaScript 部分将在下一部分提供 -->
+    <script>
+      // 占位符，实际代码将在下一部分提供
+      console.log("JavaScript 代码将在下一部分完善");
+    </script>
+  </body>
+</html>
+
+<script>
+  // 初始化目标类别数组
+  let categories = JSON.parse(localStorage.getItem("goalCategories")) || [];
+  let currentEditIndex = -1;
+
+  // 颜色映射
+  const colorMap = {
+    indigo: "from-indigo-500 to-indigo-600",
+    teal: "from-teal-500 to-teal-600",
+    purple: "from-purple-500 to-purple-600",
+    pink: "from-pink-500 to-pink-600",
+    blue: "from-blue-500 to-blue-600",
+  };
+
+  // 选择颜色
+  function selectColor(color) {
+    document.getElementById("selectedColor").value = color;
+    document.querySelectorAll(".color-select").forEach((el) => {
+      el.classList.remove("ring-4", "ring-white");
+    });
+    event.currentTarget.classList.add("ring-4", "ring-white");
+  }
+
+  // 添加新目标类别
+  function addNewCategory() {
+    openCategoryModal();
+  }
+
+  // 保存类别
+  function saveCategoryModal() {
+    const categoryName = document
+      .getElementById("categoryNameInput")
+      .value.trim();
+    const categoryColor = document.getElementById("selectedColor").value;
+
+    if (categoryName) {
+      if (currentEditIndex === -1) {
+        // 添加新类别
+        categories.push({
+          name: categoryName,
+          color: categoryColor,
+          goals: [],
+        });
+      } else {
+        // 编辑现有类别
+        categories[currentEditIndex].name = categoryName;
+        categories[currentEditIndex].color = categoryColor;
+      }
+
+      renderCategories();
+      closeCategoryModal();
+    } else {
+      // 如果类别名称为空，高亮显示输入框
+      const input = document.getElementById("categoryNameInput");
+      input.classList.add("ring-2", "ring-red-500");
+      input.addEventListener(
+        "input",
+        function () {
+          this.classList.remove("ring-2", "ring-red-500");
+        },
+        { once: true }
+      );
+    }
+  }
+
+  // 编辑类别
+  function editCategory(index) {
+    openCategoryModal(true, index);
+  }
+
+  // 删除类别
+  function deleteCategory(index) {
+    // 添加确认对话框
+    if (confirm("确定要删除这个目标类别吗？")) {
+      categories.splice(index, 1);
+      renderCategories();
+    }
+  }
+
+  // 打开模态框动画
+  function openCategoryModal(isEdit = false, index = -1) {
+    const modal = document.querySelector("#categoryModal > div");
+    const categoryNameInput = document.getElementById("categoryNameInput");
+
+    // 重置颜色选择
+    document.querySelectorAll(".color-select").forEach((el) => {
+      el.classList.remove("ring-4", "ring-white");
+    });
+    document
+      .querySelector('.color-select[data-color="indigo"]')
+      .classList.add("ring-4", "ring-white");
+
+    if (isEdit && index !== -1) {
+      document.getElementById("modalTitle").textContent = "编辑目标类别";
+      categoryNameInput.value = categories[index].name;
+
+      // 选中当前颜色
+      const colorButton = document.querySelector(
+        `.color-select[data-color="${categories[index].color}"]`
+      );
+      if (colorButton) {
+        document.querySelectorAll(".color-select").forEach((el) => {
+          el.classList.remove("ring-4", "ring-white");
+        });
+        colorButton.classList.add("ring-4", "ring-white");
+        document.getElementById("selectedColor").value =
+          categories[index].color;
+      }
+
+      currentEditIndex = index;
+    } else {
+      document.getElementById("modalTitle").textContent = "添加新目标类别";
+      categoryNameInput.value = "";
+      currentEditIndex = -1;
+    }
+
+    // 显示模态框并添加动画
+    document.getElementById("categoryModal").classList.remove("hidden");
+    gsap.to(modal, {
+      scale: 1,
+      opacity: 1,
+      duration: 0.3,
+      ease: "back.out(1.7)",
+    });
+  }
+
+  // 关闭模态框动画
+  function closeCategoryModal() {
+    const modal = document.querySelector("#categoryModal > div");
+    gsap.to(modal, {
+      scale: 0.95,
+      opacity: 0,
+      duration: 0.2,
+      onComplete: () => {
+        document.getElementById("categoryModal").classList.add("hidden");
+      },
+    });
+  }
+
+  // 添加新目标
+  function addGoal(catIndex) {
+    const goalText = prompt("请输入新目标");
+    if (goalText && goalText.trim()) {
+      if (!categories[catIndex].goals) {
+        categories[catIndex].goals = [];
+      }
+      categories[catIndex].goals.push({
+        text: goalText.trim(),
+        completed: false,
+      });
+      renderCategories();
+    }
+  }
+
+  // 切换目标完成状态
+  function toggleGoal(catIndex, goalIndex) {
+    categories[catIndex].goals[goalIndex].completed =
+      !categories[catIndex].goals[goalIndex].completed;
+    renderCategories();
+  }
+
+  // 删除目标
+  function deleteGoal(catIndex, goalIndex) {
+    // 添加确认对话框
+    if (confirm("确定要删除这个目标吗？")) {
+      categories[catIndex].goals.splice(goalIndex, 1);
+      renderCategories();
+    }
+  }
+
+  // 保存到本地存储
+  function saveCategories() {
+    localStorage.setItem("goalCategories", JSON.stringify(categories));
+  }
+
+  // 渲染目标列表
+  function renderGoals(goals, catIndex) {
+    return goals
+      .map(
+        (goal, goalIndex) => `
+            <div class="goal-item relative bg-[#2C3654] rounded-xl p-4 flex items-center space-x-4 transform transition-all duration-300 hover:scale-[1.02] hover:shadow-lg">
+                <label class="custom-checkbox relative cursor-pointer">
+                    <input 
+                        type="checkbox" 
+                        ${goal.completed ? "checked" : ""} 
+                        onchange="toggleGoal(${catIndex}, ${goalIndex})" 
+                        class="absolute opacity-0 w-0 h-0"
+                    >
+                    <span class="checkbox-custom block w-6 h-6 rounded-md border-2 border-gray-500 
+                        relative transition-all duration-200
+                        after:content-[''] after:absolute after:hidden 
+                        after:left-[6px] after:top-[2px] after:w-[5px] after:h-[10px] 
+                        after:border-r-2 after:border-b-2 after:border-white after:rotate-45
+                    "></span>
+                </label>
+                <span class="${
+                  goal.completed
+                    ? "line-through text-gray-500"
+                    : "text-gray-200"
+                } flex-grow">
+                    ${goal.text}
+                </span>
+                <button 
+                    onclick="deleteGoal(${catIndex}, ${goalIndex})" 
+                    class="text-red-400 hover:text-red-600 transform hover:scale-125 transition-transform"
+                >
+                    <i class="ri-delete-bin-line"></i>
+                </button>
+            </div>
+        `
+      )
+      .join("");
+  }
+
+// 渲染类别  
+function renderCategories() {  
+    const categoryContainer = document.getElementById('categoryContainer');  
+    categoryContainer.innerHTML = '';  
+    
+    categories.forEach((category, catIndex) => {  
+        const categoryCard = document.createElement('div');  
+        categoryCard.className = `category-card bg-[#1E2745] rounded-2xl p-6 shadow-xl transform transition-all duration-300 hover:scale-[1.03]`;   
+        categoryCard.innerHTML = `  
+            <div class="flex justify-between items-center mb-6">  
+                <h2 class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r ${colorMap[category.color]}">  
+                    ${category.name}  
+                </h2>  
+                <div class="flex space-x-2">  
+                    <button onclick="editCategory(${catIndex})" class="text-gray-400 hover:text-indigo-400 transform hover:scale-125 transition-transform">  
+                        <i class="ri-edit-line"></i>  
+                    </button>  
+                    <button onclick="deleteCategory(${catIndex})" class="text-gray-400 hover:text-red-500 transform hover:scale-125 transition-transform">  
+                        <i class="ri-delete-bin-line"></i>  
+                    </button>  
+                </div>  
+            </div>  
+            <div id="goalList-${catIndex}" class="space-y-4">  
+                ${renderGoals(category.goals, catIndex)}  
+            </div>  
+            <div class="mt-6">  
+                <button   
+                    onclick="addGoal(${catIndex})"   
+                    class="w-full py-3 bg-[#2C3654] text-gray-300 rounded-xl hover:bg-[#3A4568] flex items-center justify-center space-x-2 transition-colors"  
+                >  
+                    <i class="ri-add-line"></i>  
+                    <span>添加目标</span>  
+                </button>  
+            </div>  
+        `;  
+        categoryContainer.appendChild(categoryCard);  
+    });  
+
+    saveCategories();  
+}  
+
+  // 初始化渲染
+  renderCategories();
+</script>

@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>全屏时钟</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="assets/css/main.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #000;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.5s;
+        }
+        #fullscreen-prompt {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0,0,0,0.7);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            z-index: 1000;
+        }
+        #clock {
+            font-size: 10vw;
+            font-weight: 600;
+            letter-spacing: 0.03em;
+            color: #e0e0e0;
+            text-shadow: 1px 1px 3px rgba(255,255,255,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div id="fullscreen-prompt" class="text-white">
+        <h2 class="text-2xl mb-4">点击任意位置进入全屏模式</h2>
+        <p class="text-gray-300">全屏后将显示时间</p>
+    </div>
+
+    <div id="clock-container" class="hidden text-center">
+        <div id="clock"></div>
+    </div>
+
+    <script>
+        const fullscreenPrompt = document.getElementById('fullscreen-prompt');
+        const clockContainer = document.getElementById('clock-container');
+        const clockElement = document.getElementById('clock');
+
+        // 更新时间函数
+        function updateTime() {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const seconds = now.getSeconds().toString().padStart(2, '0');
+            
+            clockElement.textContent = `${hours}:${minutes}:${seconds}`;
+        }
+
+        // 尝试进入全屏模式
+        function enterFullscreen() {
+            if (!document.fullscreenElement) {
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen();
+                } else if (document.documentElement.mozRequestFullScreen) { // Firefox
+                    document.documentElement.mozRequestFullScreen();
+                } else if (document.documentElement.webkitRequestFullscreen) { // Chrome, Safari and Opera
+                    document.documentElement.webkitRequestFullscreen();
+                } else if (document.documentElement.msRequestFullscreen) { // IE/Edge
+                    document.documentElement.msRequestFullscreen();
+                }
+            }
+        }
+
+        // 全屏变化事件处理
+        document.addEventListener('fullscreenchange', () => {
+            if (document.fullscreenElement) {
+                fullscreenPrompt.classList.add('hidden');
+                clockContainer.classList.remove('hidden');
+                
+                // 立即更新时间并开始定时更新
+                updateTime();
+                setInterval(updateTime, 1000);
+            } else {
+                fullscreenPrompt.classList.remove('hidden');
+                clockContainer.classList.add('hidden');
+            }
+        });
+
+        // 点击任意位置进入全屏
+        document.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                enterFullscreen();
+            }
+        });
+
+        // 处理可能的全屏错误
+        document.addEventListener('fullscreenerror', (event) => {
+            console.error('无法进入全屏模式', event);
+            alert('无法进入全屏模式，请检查浏览器设置');
+        });
+    </script>
+<script>window.parent.postMessage({ action: "ready" }, "*"); 
+ 
+window.console = new Proxy(console, {
+  get(target, prop) {
+    if (['log', 'warn', 'error'].includes(prop)) {
+      return new Proxy(target[prop], {
+        apply(fn, thisArg, args) {
+          fn.apply(thisArg, args);
+          window.parent.postMessage({ action: 'console', 
+            type: prop, 
+            args: args.map((arg) => {
+              try {
+                return JSON.stringify(arg).replace(/^["']|["']$/g, '');
+              } catch (e) {
+                return arg;
+              }
+            }) 
+          }, '*');
+        }
+      });
+    }
+    return target[prop];
+  }
+});
+</script></body>
+</html>

@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="zh" class="no-js">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>博客导航 - LiyangAlbert</title>
+    <style>
+      @font-face {
+        font-family: "FangZheng";
+        src: url("assets/fonts/fangzheng.ttf") format("truetype");
+        font-weight: normal;
+        font-style: normal;
+      }
+
+      :root {
+        /* Light Mode Colors */
+        --bg-primary: #f8f9fa; /* 浅灰白 */
+        --bg-secondary: #ffffff; /* 纯白 */
+        --bg-dark: #1a1e24; /* 深灰黑 */
+
+        --text-primary: #2c3e50; /* 深灰 */
+        --text-secondary: #6c757d; /* 中灰 */
+        --text-light: #868e96; /* 浅灰 */
+
+        --border-color: #dee2e6; /* 浅灰边框 */
+        --hover-color: #f1f3f5; /* 悬停背景 */
+
+        /* Dark Mode Colors */
+        --dark-bg-primary: #121212;
+        --dark-bg-secondary: #1e1e1e;
+        --dark-text-primary: #e0e0e0;
+        --dark-text-secondary: #a0a0a0;
+        --dark-border-color: #333333;
+        --dark-hover-color: #2c2c2c;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "FangZheng", -apple-system, BlinkMacSystemFont, "Segoe UI",
+          Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
+          sans-serif;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        line-height: 1.6;
+        transition: none;
+      }
+
+      .category-item {
+        display: block;
+        padding: 10px;
+        margin-bottom: 5px;
+        color: var(--text-primary);
+        border-radius: 4px;
+        text-decoration: none;
+        cursor: pointer;
+        position: relative; /* 添加相对定位 */
+      }
+
+      .category-item:hover {
+        background: var(--hover-color);
+        color: var(--text-dark);
+        transform: translateX(5px);
+      }
+
+      /* 博客卡片悬停效果 */
+      .blog-card {
+        background: var(--bg-secondary);
+        border-radius: 8px;
+        padding: 20px;
+        border: 1px solid var(--border-color);
+        transition: all 0.3s ease;
+        cursor: pointer;
+        opacity: 0;
+        transform: translateY(20px);
+        will-change: transform, opacity;
+      }
+
+      .blog-card:hover {
+        background: var(--hover-color);
+        transform: translateY(-10px) scale(1.02);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+      }
+
+      /* 链接悬停效果 */
+      .links a:hover {
+        background-color: var(--hover-color);
+        color: var(--text-primary);
+        transform: translateY(-3px);
+      }
+
+      .links {
+        text-align: center;
+        margin-top: 30px;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      }
+
+      .links a {
+        display: inline-block;
+        margin: 0 10px;
+        color: var(--text-secondary);
+        text-decoration: none;
+        padding: 10px 15px;
+        border-radius: 4px;
+        border: 1px solid var(--border-color);
+        transition: all 0.3s ease;
+      }
+
+
+      .page-title {
+        text-align: center;
+        padding: 40px 0 20px;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      }
+
+      .page-title h1 {
+        font-family: "FangZheng", sans-serif;
+        font-size: 2.5rem;
+        color: var(--text-primary);
+        font-weight: bold;
+      }
+
+      .page-title h3 {
+        font-size: 1rem;
+        color: var(--text-secondary);
+        margin-top: 10px;
+      }
+
+      .blog-page-container {
+        max-width: 1200px;
+        margin: 20px auto 40px;
+        background: var(--bg-secondary);
+        border-radius: 8px;
+        padding: 30px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        border: 1px solid var(--border-color);
+      }
+
+      .blog-container {
+        display: flex;
+        gap: 20px;
+      }
+
+      .blog-sidebar {
+        width: 200px;
+        background: var(--hover-color);
+        border-radius: 8px;
+        padding: 15px;
+        height: fit-content;
+        position: sticky;
+        top: 20px;
+        border: 1px solid var(--border-color);
+        opacity: 0;
+        transform: translateX(-20px);
+        transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      }
+
+      .category-list h3 {
+        color: var(--text-primary);
+        margin-bottom: 10px;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 10px;
+      }
+
+      .category-item {
+        display: block;
+        padding: 10px;
+        margin-bottom: 5px;
+        color: var(--text-primary);
+        border-radius: 4px;
+        text-decoration: none;
+        cursor: pointer;
+        position: relative; /* 添加相对定位 */
+      }
+
+      .category-item:hover {
+        color: var(--text-dark);
+        transform: translateX(5px);
+        transition: all 0.5s ease;
+      }
+
+      .category-item {
+        position: relative;
+        color: var(--text-light);
+      }
+
+      .category-item.active {
+        color: var(--text-dark);
+        transition: all 0.5s ease;
+      }
+
+      .blog-main {
+        flex-grow: 1;
+      }
+
+      .blog-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+      }
+
+      .blog-card {
+        background: var(--bg-secondary);
+        border-radius: 8px;
+        padding: 20px;
+        border: 1px solid var(--border-color);
+        transition: all 0.3s ease;
+        cursor: pointer;
+        opacity: 0;
+        transform: translateY(20px);
+        will-change: transform, opacity;
+      }
+
+      .blog-card:hover {
+        background: var(--hover-color);
+        transform: translateY(-10px) scale(1.02);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+      }
+
+      .blog-card-title {
+        color: var(--text-primary);
+        margin-bottom: 10px;
+        font-size: 18px;
+      }
+
+      .blog-card-description {
+        color: var(--text-secondary);
+        margin-bottom: 10px;
+      }
+
+      .blog-card.active {
+        background: var(--hover-color);
+        border: 2px solid var(--text-primary);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+        transform: translateY(-10px) scale(1.05);
+      }
+
+      .blog-card-meta {
+        display: flex;
+        justify-content: space-between;
+        color: var(--text-light);
+        font-size: 14px;
+        margin-top: 10px;
+      }
+
+      
+
+      @media (max-width: 768px) {
+        .blog-container {
+          flex-direction: column;
+        }
+
+        .blog-sidebar {
+          width: 100%;
+          position: static;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page-title js-animate">
+      <h1>博客导航</h1>
+      <h3>Personal Blog Collection</h3>
+    </div>
+
+    <div class="blog-page-container">
+      <div class="blog-container">
+        <div class="blog-sidebar js-animate">
+          <div class="category-list">
+            <h3>分类目录</h3>
+            <div class="category-item active" data-category="all">全部文章</div>
+            <div class="category-item" data-category="tech">技术随笔</div>
+            <div class="category-item" data-category="life">生活杂记</div>
+            <div class="category-item" data-category="philosophy">
+              思考与感悟
+            </div>
+            <div class="category-item" data-category="review">读书与影评</div>
+          </div>
+        </div>
+
+        <div class="blog-main">
+          <div class="blog-grid">
+
+            <!--  onclick="window.location.href='tools/colorbox.html'"  -->
+            <div class="blog-card js-animate" data-category="tech">
+              <h4 class="blog-card-title">LLM时代的前端技术栈</h4>
+              <p class="blog-card-description">
+                探讨正在形成的全新的前端设计理念与实践
+              </p>
+              <div class="blog-card-meta">
+                <span>技术随笔</span>
+                <span>2024-01-15</span>
+              </div>
+            </div>
+
+            <div class="blog-card js-animate" data-category="life">
+              <h4 class="blog-card-title">喜欢摄影</h4>
+              <p class="blog-card-description">记录美好的体验</p>
+              <div class="blog-card-meta">
+                <span>生活杂记</span>
+                <span>2024-01-10</span>
+              </div>
+            </div>
+
+            <div class="blog-card js-animate" data-category="philosophy">
+              <h4 class="blog-card-title">生命的边界</h4>
+              <p class="blog-card-description">人生充满不确定性</p>
+              <div class="blog-card-meta">
+                <span>思考与感悟</span>
+                <span>2024-01-05</span>
+              </div>
+            </div>
+
+
+            <div class="blog-card js-animate" data-category="review">
+              <h4 class="blog-card-title">《三体》：给时间以生命 </h4>
+              <p class="blog-card-description">刘慈欣作品的深度解读</p>
+              <div class="blog-card-meta">
+                <span>读书与影评</span>
+                <span>2024-01-02</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="links js-animate">
+      <a href="index.html">返回主页</a>
+      <a href="https://github.com/liyangalbert">GitHub</a>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        // 分类筛选
+        const categoryItems = document.querySelectorAll(".category-item");
+        const blogCards = document.querySelectorAll(".blog-card");
+
+        categoryItems.forEach((item) => {
+          item.addEventListener("click", () => {
+            // 重置所有分类项
+            categoryItems.forEach((i) => i.classList.remove("active"));
+            item.classList.add("active");
+
+            const category = item.dataset.category;
+
+            blogCards.forEach((card) => {
+              if (category === "all" || card.dataset.category === category) {
+                card.style.display = "block";
+              } else {
+                card.style.display = "none";
+              }
+            });
+          });
+        });
+
+        // 动画效果
+        const animateElements = document.querySelectorAll(".js-animate");
+
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.style.opacity = "1";
+                entry.target.style.transform = "translateY(0) translateX(0)";
+                observer.unobserve(entry.target);
+              }
+            });
+          },
+          { threshold: 0.1 }
+        );
+
+        animateElements.forEach((el) => {
+          observer.observe(el);
+        });
+      });
+    </script>
+  </body>
+</html>

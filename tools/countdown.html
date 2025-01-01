@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>倒数日 - 记录重要时刻</title>
+    <link rel="stylesheet" type="text/css" href="assets/css/main.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #2d3748;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4a5568;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #718096;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-900 to-gray-800 text-white min-h-screen flex items-center justify-center p-4">
+    <div class="container mx-auto max-w-xl">
+        <div class="bg-gray-800 rounded-2xl shadow-2xl overflow-hidden">
+            <div class="p-6">
+                <h1 class="text-3xl font-bold text-center text-blue-300 mb-6">倒数日</h1>
+            </div>
+            
+            <div class="px-4 pb-6">
+                <div class="grid grid-cols-1 gap-4" id="countdownGrid">
+                    <!-- 新增倒数日按钮 -->
+                    <div class="bg-gray-700 rounded-xl p-3 flex items-center justify-center cursor-pointer hover:bg-gray-600 transition-all duration-300 group" id="addCountdownBtn">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-blue-400 group-hover:text-blue-300 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 模态框：添加倒数日 -->
+    <div id="addCountdownModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-gray-800 rounded-2xl p-6 w-full max-w-md shadow-2xl transform transition-all duration-300 scale-95 opacity-0" id="modalContent">
+            <h2 class="text-xl font-bold mb-4 text-center text-blue-400">添加倒数日</h2>
+            <div class="space-y-4">
+                <input type="text" id="eventNameInput" placeholder="事件名称" class="w-full p-2 bg-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                <input type="date" id="eventDateInput" class="w-full p-2 bg-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                <div class="flex space-x-4">
+                    <button id="saveCountdownBtn" class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-500 transition focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        保存
+                    </button>
+                    <button id="cancelCountdownBtn" class="flex-1 bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-500 transition focus:outline-none focus:ring-2 focus:ring-gray-500">
+                        取消
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class CountdownManager {
+            constructor() {
+                this.countdowns = JSON.parse(localStorage.getItem('countdowns') || '[]');
+                this.gridElement = document.getElementById('countdownGrid');
+                this.addBtn = document.getElementById('addCountdownBtn');
+                this.modal = document.getElementById('addCountdownModal');
+                this.modalContent = document.getElementById('modalContent');
+                this.nameInput = document.getElementById('eventNameInput');
+                this.dateInput = document.getElementById('eventDateInput');
+                this.saveBtn = document.getElementById('saveCountdownBtn');
+                this.cancelBtn = document.getElementById('cancelCountdownBtn');
+
+                this.initEventListeners();
+                this.renderCountdowns();
+                this.startCountdownUpdates();
+            }
+
+            initEventListeners() {
+                this.addBtn.addEventListener('click', () => this.showModal());
+                this.cancelBtn.addEventListener('click', () => this.hideModal());
+                this.saveBtn.addEventListener('click', () => this.saveCountdown());
+                
+                this.modal.addEventListener('click', (e) => {
+                    if (e.target === this.modal) {
+                        this.hideModal();
+                    }
+                });
+            }
+
+            showModal() {
+                this.modal.classList.remove('hidden');
+                this.modal.classList.add('flex');
+                
+                setTimeout(() => {
+                    this.modalContent.classList.remove('scale-95', 'opacity-0');
+                    this.modalContent.classList.add('scale-100', 'opacity-100');
+                }, 10);
+
+                this.nameInput.value = '';
+                this.dateInput.value = '';
+                this.nameInput.focus();
+            }
+
+            hideModal() {
+                this.modalContent.classList.remove('scale-100', 'opacity-100');
+                this.modalContent.classList.add('scale-95', 'opacity-0');
+
+                setTimeout(() => {
+                    this.modal.classList.remove('flex');
+                    this.modal.classList.add('hidden');
+                }, 300);
+            }
+
+            saveCountdown() {
+                const name = this.nameInput.value.trim();
+                const date = this.dateInput.value;
+
+                if (name && date) {
+                    this.countdowns.push({ name, date });
+                    this.saveToLocalStorage();
+                    this.renderCountdowns();
+                    this.hideModal();
+                } else {
+                    if (!name) this.nameInput.classList.add('border-2', 'border-red-500');
+                    if (!date) this.dateInput.classList.add('border-2', 'border-red-500');
+                }
+            }
+
+            saveToLocalStorage() {
+                localStorage.setItem('countdowns', JSON.stringify(this.countdowns));
+            }
+
+            renderCountdowns() {
+                // 按照倒数日临近程度排序
+                this.countdowns.sort((a, b) => {
+                    const daysLeftA = this.calculateDaysLeft(a.date);
+                    const daysLeftB = this.calculateDaysLeft(b.date);
+                    return daysLeftA - daysLeftB;
+                });
+
+                const addBtn = document.getElementById('addCountdownBtn');
+                this.gridElement.innerHTML = '';
+                this.gridElement.appendChild(addBtn);
+
+                this.countdowns.forEach((countdown, index) => {
+                    const card = this.createCountdownCard(countdown, index);
+                    this.gridElement.insertBefore(card, addBtn);
+                });
+            }
+
+            createCountdownCard(countdown, index) {  
+                const card = document.createElement('div');  
+                card.className = 'bg-gray-700 rounded-xl p-4 relative transition-all duration-300 hover:scale-105 hover:shadow-xl group';  
+                
+                const today = new Date();  
+                const target = new Date(countdown.date);  
+                const totalDays = Math.ceil((target.getTime() - new Date(today.getFullYear(), 0, 1).getTime()) / (1000 * 3600 * 24));  
+                const daysLeft = this.calculateDaysLeft(countdown.date);  
+                const daysPassed = totalDays - daysLeft;  
+                
+                const progressPercentage = Math.max(0, Math.min(100, (daysPassed / totalDays) * 100));  
+                
+                const color = this.getColorByDaysLeft(daysLeft);  
+            
+                card.innerHTML = `  
+                    <div class="flex justify-between items-center mb-3">  
+                        <h3 class="font-bold text-lg text-white">${countdown.name}</h3>  
+                        <button class="text-red-500 delete-btn opacity-0 group-hover:opacity-100 transition-opacity" data-index="${index}">  
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hover:text-red-600" viewBox="0 0 20 20" fill="currentColor">  
+                                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />  
+                            </svg>  
+                        </button>  
+                    </div>  
+                    <div class="text-center">  
+                        <div class="text-3xl font-bold ${color} mb-1">${daysLeft}</div>  
+                        <div class="text-xs text-gray-400 mb-3">天</div>  
+                        
+                        <div class="w-full bg-gray-600 rounded-full h-2 mb-2">  
+                            <div class="bg-blue-600 h-2 rounded-full" style="width: ${progressPercentage}%"></div>  
+                        </div>  
+                        
+                        <div class="flex justify-between text-xs text-gray-400">  
+                            <span>${countdown.date}</span>  
+                            <span>${Math.round(progressPercentage)}%</span>  
+                        </div>  
+                    </div>  
+                `;  
+            
+                // 删除按钮事件  
+                card.querySelector('.delete-btn').addEventListener('click', (e) => {  
+                    const index = e.currentTarget.getAttribute('data-index');  
+                    this.countdowns.splice(index, 1);  
+                    this.saveToLocalStorage();  
+                    this.renderCountdowns();  
+                });  
+            
+                return card;  
+            }  
+            
+            getColorByDaysLeft(days) {  
+                if (days < 0) return 'text-red-600';      // 已过期  
+                if (days <= 7) return 'text-orange-500';  // 非常紧急  
+                if (days <= 30) return 'text-yellow-500'; // 即将到来  
+                if (days <= 90) return 'text-green-500';  // 近期  
+                return 'text-blue-500';                   // 时间充足  
+            }
+
+            calculateDaysLeft(targetDate) {
+                const today = new Date();
+                const target = new Date(targetDate);
+                const timeDiff = target.getTime() - today.getTime();
+                return Math.ceil(timeDiff / (1000 * 3600 * 24));
+            }
+
+            startCountdownUpdates() {
+                setInterval(() => this.renderCountdowns(), 86400000); // 每天更新一次
+            }
+        }
+
+        // 初始化倒数日管理器s
+        document.addEventListener('DOMContentLoaded', () => {
+            new CountdownManager();
+        });
+    </script>
+<script>window.parent.postMessage({ action: "ready" }, "*"); 
+ 
+window.console = new Proxy(console, {
+  get(target, prop) {
+    if (['log', 'warn', 'error'].includes(prop)) {
+      return new Proxy(target[prop], {
+        apply(fn, thisArg, args) {
+          fn.apply(thisArg, args);
+          window.parent.postMessage({ action: 'console', 
+            type: prop, 
+            args: args.map((arg) => {
+              try {
+                return JSON.stringify(arg).replace(/^["']|["']$/g, '');
+              } catch (e) {
+                return arg;
+              }
+            }) 
+          }, '*');
+        }
+      });
+    }
+    return target[prop];
+  }
+});
+</script></body>
+</html>

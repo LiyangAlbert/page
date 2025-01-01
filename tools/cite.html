@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文献引用生成器</title>
+    <link rel="stylesheet" type="text/css" href="assets/css/main.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // 配置 Tailwind 支持暗黑模式
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 min-h-screen p-6 transition-colors duration-300">
+    <div class="container mx-auto max-w-5xl bg-white dark:bg-gray-800 shadow-lg rounded-lg p-8 transition-colors duration-300">
+        <h1 class="text-3xl font-bold text-center mb-6 text-gray-800 dark:text-gray-100">文献引用生成器</h1>
+        
+        <div class="mb-6">
+            <div class="grid md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-gray-700 dark:text-gray-300 mb-2">文献类型</label>
+                    <select id="doc-type" 
+                        class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 
+                               bg-white dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 
+                               text-gray-900 transition-colors duration-300">
+                        <option value="journal">期刊论文</option>
+                        <option value="book">专著/书籍</option>
+                        <option value="conference">会议论文</option>
+                        <option value="thesis">学位论文</option>
+                        <option value="newspaper">报纸文章</option>
+                        <option value="patent">专利</option>
+                        <option value="standard">标准</option>
+                        <option value="website">网络资源</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-gray-700 dark:text-gray-300 mb-2">作者</label>
+                    <input type="text" id="author" placeholder="姓名，多个作者用逗号分隔" 
+                        class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 
+                               bg-white dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 
+                               text-gray-900 transition-colors duration-300">
+                </div>
+                <div>
+                    <label class="block text-gray-700 dark:text-gray-300 mb-2">文献标题</label>
+                    <input type="text" id="title" placeholder="论文或书籍标题" 
+                        class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 
+                               bg-white dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600 
+                               text-gray-900 transition-colors duration-300">
+                </div>
+            </div>
+
+
+
+            <div class="grid md:grid-cols-3 gap-4 mt-4">  
+                <div>  
+                    <label class="block text-gray-700 dark:text-gray-300 mb-2">期刊/书籍/会议名称</label>  
+                    <input type="text" id="source" placeholder="发表源"   
+                        class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500   
+                               bg-white dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600   
+                               text-gray-900 transition-colors duration-300">  
+                </div>  
+                <div>  
+                    <label class="block text-gray-700 dark:text-gray-300 mb-2">出版年份</label>  
+                    <input type="number" id="year" placeholder="发表年份"   
+                        class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500   
+                               bg-white dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600   
+                               text-gray-900 transition-colors duration-300">  
+                </div>  
+                <div>  
+                    <label class="block text-gray-700 dark:text-gray-300 mb-2">引用格式</label>  
+                    <select id="citation-style"   
+                        class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500   
+                               bg-white dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600   
+                               text-gray-900 transition-colors duration-300">  
+                        <option value="gb7714">国标GB/T 7714</option>  
+                        <option value="apa">APA</option>  
+                        <option value="mla">MLA</option>  
+                        <option value="chicago">芝加哥</option>  
+                    </select>  
+                </div>  
+            </div>  
+
+            <div class="grid md:grid-cols-3 gap-4 mt-4">  
+                <div>  
+                    <label class="block text-gray-700 dark:text-gray-300 mb-2">卷号</label>  
+                    <input type="text" id="volume" placeholder="期刊卷号"   
+                        class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500   
+                               bg-white dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600   
+                               text-gray-900 transition-colors duration-300">  
+                </div>  
+                <div>  
+                    <label class="block text-gray-700 dark:text-gray-300 mb-2">期号/页码</label>  
+                    <input type="text" id="issue" placeholder="期号或页码范围"   
+                        class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500   
+                               bg-white dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600   
+                               text-gray-900 transition-colors duration-300">  
+                </div>  
+                <div>  
+                    <label class="block text-gray-700 dark:text-gray-300 mb-2">DOI/ISBN</label>  
+                    <input type="text" id="doi" placeholder="数字对象唯一标识符"   
+                        class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500   
+                               bg-white dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600   
+                               text-gray-900 transition-colors duration-300">  
+                </div>  
+            </div>  
+            <!-- 后续代码将在下一部分继续 -->
+
+            <div class="grid md:grid-cols-3 gap-4 mt-4">  
+                <div>  
+                    <label class="block text-gray-700 dark:text-gray-300 mb-2">出版社/机构</label>  
+                    <input type="text" id="publisher" placeholder="出版社或发布机构"   
+                        class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500   
+                               bg-white dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600   
+                               text-gray-900 transition-colors duration-300">  
+                </div>  
+                <div>  
+                    <label class="block text-gray-700 dark:text-gray-300 mb-2">地点</label>  
+                    <input type="text" id="location" placeholder="出版地"   
+                        class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500   
+                               bg-white dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600   
+                               text-gray-900 transition-colors duration-300">  
+                </div>  
+                <div>  
+                    <label class="block text-gray-700 dark:text-gray-300 mb-2">额外信息</label>  
+                    <input type="text" id="extra" placeholder="补充说明"   
+                        class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500   
+                               bg-white dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600   
+                               text-gray-900 transition-colors duration-300">  
+                </div>  
+            </div>  
+        </div>  
+
+        <div class="mt-6">  
+            <button id="generate-btn"   
+                class="w-full bg-blue-600 text-white py-3 rounded-md hover:bg-blue-700   
+                       dark:bg-blue-700 dark:hover:bg-blue-600   
+                       transition-colors duration-300">  
+                生成引用  
+            </button>  
+        </div>  
+
+        <div id="result-container" class="mt-6 hidden">  
+            <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-md relative">  
+                <pre id="citation-result"   
+                     class="whitespace-pre-wrap break-words   
+                            text-gray-800 dark:text-gray-200   
+                            transition-colors duration-300"></pre>  
+                <button id="copy-btn"   
+                    class="absolute top-2 right-2   
+                           bg-blue-500 dark:bg-blue-600   
+                           text-white px-3 py-1 rounded   
+                           hover:bg-blue-600 dark:hover:bg-blue-500   
+                           transition-colors duration-300">  
+                    复制  
+                </button>  
+            </div>  
+        </div>  
+
+        <!-- 复制成功提示 -->  
+        <div id="copy-toast"   
+             class="fixed top-4 right-4   
+                    bg-green-500 dark:bg-green-700   
+                    text-white px-4 py-2 rounded-md shadow-lg   
+                    transition-all duration-300 ease-in-out hidden">  
+            引用已复制！  
+        </div>  
+
+        <!-- 主题切换按钮 -->  
+        <div class="fixed top-4 right-4">  
+            <button id="theme-toggle"   
+                class="bg-gray-200 dark:bg-gray-700   
+                       text-gray-800 dark:text-gray-200   
+                       p-2 rounded-full   
+                       hover:bg-gray-300 dark:hover:bg-gray-600   
+                       transition-colors duration-300">  
+                <svg id="theme-toggle-dark-icon" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">  
+                    <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>  
+                </svg>  
+                <svg id="theme-toggle-light-icon" class="w-5 h-5 hidden" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">  
+                    <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path>  
+                </svg>  
+            </button>  
+        </div>  
+    </div>  
+
+        </div>
+    </div>
+
+    <script>
+        const citationStyles = {  
+            gb7714: (data) => {  
+                const authors = data.author.split(',').map(a => a.trim());  
+                const mainAuthor = authors[0];  
+                const otherAuthors = authors.length > 1 ? '等' : '';  
+                
+                switch(data.docType) {  
+                    case 'journal':  
+                        return `${mainAuthor}${otherAuthors}. ${data.title}[J]. ${data.source}, ${data.year}, ${data.volume}(${data.issue}): ${data.extra || ''}.`;  
+                    case 'book':  
+                        return `${mainAuthor}${otherAuthors}. ${data.title}[M]. ${data.location}: ${data.publisher}, ${data.year}.`;  
+                    case 'conference':  
+                        return `${mainAuthor}${otherAuthors}. ${data.title}[C]// ${data.source}, ${data.year}.`;  
+                    case 'thesis':  
+                        return `${mainAuthor}. ${data.title}[D]. ${data.location}: ${data.publisher}, ${data.year}.`;  
+                    case 'newspaper':  
+                        return `${mainAuthor}. ${data.title}[N]. ${data.source}, ${data.year}-${data.issue}.`;  
+                    case 'patent':  
+                        return `${mainAuthor}. ${data.title}[P]. ${data.doi}, ${data.year}.`;  
+                    case 'standard':  
+                        return `${data.title}[S]. ${data.publisher}, ${data.year}.`;  
+                    case 'website':  
+                        return `${mainAuthor}. ${data.title}[EB/OL]. ${data.source}, ${data.year}.`;  
+                }  
+            },  
+            apa: (data) => {  
+                const authors = data.author.split(',').map(a => a.trim());  
+                const mainAuthor = authors[0];  
+                const otherAuthors = authors.length > 1 ? ' et al.' : '';  
+                
+                switch(data.docType) {  
+                    case 'journal':  
+                        return `${mainAuthor}${otherAuthors}. (${data.year}). ${data.title}. ${data.source}, ${data.volume}(${data.issue}), ${data.extra || ''}.`;  
+                    case 'book':  
+                        return `${mainAuthor}${otherAuthors}. (${data.year}). ${data.title}. ${data.location}: ${data.publisher}.`;  
+                    case 'conference':  
+                        return `${mainAuthor}${otherAuthors}. (${data.year}). ${data.title}. In ${data.source}.`;  
+                    case 'thesis':  
+                        return `${mainAuthor}. (${data.year}). ${data.title}. ${data.publisher} Dissertation.`;  
+                    case 'newspaper':  
+                        return `${mainAuthor}. (${data.year}, ${data.issue}). ${data.title}. ${data.source}.`;  
+                    case 'patent':  
+                        return `${mainAuthor}. (${data.year}). ${data.title}. Patent ${data.doi}.`;  
+                    case 'standard':  
+                        return `${data.title}. (${data.year}). ${data.publisher}.`;  
+                    case 'website':  
+                        return `${mainAuthor}. (${data.year}). ${data.title}. ${data.source}.`;  
+                }  
+            },  
+            mla: (data) => {  
+                const authors = data.author.split(',').map(a => a.trim());  
+                const mainAuthor = authors[0];  
+                const otherAuthors = authors.length > 1 ? ' et al.' : '';  
+                
+                switch(data.docType) {  
+                    case 'journal':  
+                        return `${mainAuthor}${otherAuthors}. "${data.title}." ${data.source}, vol. ${data.volume}, no. ${data.issue}, ${data.year}, pp. ${data.extra || ''}.`;  
+                    case 'book':  
+                        return `${mainAuthor}${otherAuthors}. ${data.title}. ${data.location}: ${data.publisher}, ${data.year}.`;  
+                    case 'conference':  
+                        return `${mainAuthor}${otherAuthors}. "${data.title}." ${data.source}, ${data.year}.`;  
+                    case 'thesis':  
+                        return `${mainAuthor}. ${data.title}. ${data.publisher}, ${data.year}.`;  
+                    case 'newspaper':  
+                        return `${mainAuthor}. "${data.title}." ${data.source}, ${data.year}, ${data.issue}.`;  
+                    case 'patent':  
+                        return `${mainAuthor}. ${data.title}. Patent ${data.doi}, ${data.year}.`;  
+                    case 'standard':  
+                        return `${data.title}. ${data.publisher}, ${data.year}.`;  
+                    case 'website':  
+                        return `${mainAuthor}. "${data.title}." ${data.source}, ${data.year}.`;  
+                }  
+            },  
+            chicago: (data) => {  
+                const authors = data.author.split(',').map(a => a.trim());  
+                const mainAuthor = authors[0];  
+                const otherAuthors = authors.length > 1 ? ', et al.' : '';  
+                
+                switch(data.docType) {  
+                    case 'journal':  
+                        return `${mainAuthor}${otherAuthors}. "${data.title}." ${data.source} ${data.volume}, no. ${data.issue} (${data.year}): ${data.extra || ''}.`;  
+                    case 'book':  
+                        return `${mainAuthor}${otherAuthors}. ${data.title}. ${data.location}: ${data.publisher}, ${data.year}.`;  
+                    case 'conference':  
+                        return `${mainAuthor}${otherAuthors}. "${data.title}." In ${data.source}, ${data.year}.`;  
+                    case 'thesis':  
+                        return `${mainAuthor}. ${data.title}. ${data.location}: ${data.publisher}, ${data.year}.`;  
+                    case 'newspaper':  
+                        return `${mainAuthor}. "${data.title}." ${data.source}, ${data.year}, ${data.issue}.`;  
+                    case 'patent':  
+                        return `${mainAuthor}. ${data.title}. Patent ${data.doi}, ${data.year}.`;  
+                    case 'standard':  
+                        return `${data.title}. ${data.publisher}, ${data.year}.`;  
+                    case 'website':  
+                        return `${mainAuthor}. "${data.title}." ${data.source}, ${data.year}.`;  
+                }  
+            }  
+        };
+
+        // 获取DOM元素  
+        const generateBtn = document.getElementById('generate-btn');  
+        const resultContainer = document.getElementById('result-container');  
+        const citationResult = document.getElementById('citation-result');  
+        const copyBtn = document.getElementById('copy-btn');  
+        const copyToast = document.getElementById('copy-toast');  
+
+        // 复制功能  
+        copyBtn.addEventListener('click', () => {  
+            const tempTextArea = document.createElement('textarea');  
+            tempTextArea.value = citationResult.textContent;  
+            document.body.appendChild(tempTextArea);  
+            
+            tempTextArea.select();  
+            try {  
+                const successful = document.execCommand('copy');  
+                if (successful) {  
+                    copyToast.classList.remove('hidden');  
+                    setTimeout(() => {  
+                        copyToast.classList.add('hidden');  
+                    }, 2000);  
+                } else {  
+                    alert('复制失败');  
+                }  
+            } catch (err) {  
+                alert('复制失败：' + err);  
+            }  
+            
+            document.body.removeChild(tempTextArea);  
+        });  
+
+        // 生成引用  
+        generateBtn.addEventListener('click', () => {  
+            const data = {  
+                docType: document.getElementById('doc-type').value,  
+                author: document.getElementById('author').value,  
+                title: document.getElementById('title').value,  
+                source: document.getElementById('source').value,  
+                year: document.getElementById('year').value,  
+                volume: document.getElementById('volume').value,  
+                issue: document.getElementById('issue').value,  
+                doi: document.getElementById('doi').value,  
+                publisher: document.getElementById('publisher').value,  
+                location: document.getElementById('location').value,  
+                extra: document.getElementById('extra').value  
+            };  
+
+            const style = document.getElementById('citation-style').value;  
+            
+            // 验证必填项  
+            if (!data.author || !data.title || !data.source || !data.year) {  
+                alert('请填写必要的信息：作者、标题、来源和年份');  
+                return;  
+            }  
+
+            const citation = citationStyles[style](data);  
+            
+            citationResult.textContent = citation;  
+            resultContainer.classList.remove('hidden');  
+        });  
+
+        // 主题切换逻辑  
+        const themeToggleBtn = document.getElementById('theme-toggle');  
+        const themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');  
+        const themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');  
+
+        // 检查初始主题  
+        if (localStorage.getItem('color-theme') === 'dark' ||   
+            (!localStorage.getItem('color-theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {  
+            document.documentElement.classList.add('dark');  
+            themeToggleDarkIcon.classList.add('hidden');  
+            themeToggleLightIcon.classList.remove('hidden');  
+        } else {  
+            document.documentElement.classList.remove('dark');  
+            themeToggleLightIcon.classList.add('hidden');  
+            themeToggleDarkIcon.classList.remove('hidden');  
+        }  
+
+        themeToggleBtn.addEventListener('click', () => {  
+            // 切换图标  
+            themeToggleDarkIcon.classList.toggle('hidden');  
+            themeToggleLightIcon.classList.toggle('hidden');  
+
+            // 切换主题  
+            if (document.documentElement.classList.contains('dark')) {  
+                document.documentElement.classList.remove('dark');  
+                localStorage.setItem('color-theme', 'light');  
+            } else {  
+                document.documentElement.classList.add('dark');  
+                localStorage.setItem('color-theme', 'dark');  
+            }  
+        });  
+    </script>
+</body>
+</html>

@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文本加密工具</title>
+    <link rel="stylesheet" type="text/css" href="assets/css/main.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class'
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lucide-icons@0.263.1/dist/lucide.min.css">
+    <style>
+        
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 120px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -60px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        #toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        .toast {
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            transform: translateX(100%);
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex items-center justify-center">
+    <div id="toast-container" class="fixed top-4 right-4 space-y-2"></div>
+
+    <div class="bg-gray-800 p-8 rounded-2xl shadow-2xl w-full max-w-md border border-gray-800">
+        <h1 class="text-3xl font-bold mb-6 text-center text-cyan-600 tracking-wider">
+            文本加密工具
+        </h1>
+        
+        <div class="space-y-4">
+            <div>
+                <label for="secretKey" class="block text-sm font-medium text-gray-400 mb-2">
+                    密钥
+                </label>
+                <div class="relative">
+                    <input 
+                        type="text" 
+                        id="secretKey" 
+                        class="w-full px-3 py-2 bg-gray-700 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-cyan-600 pr-10"
+                        placeholder="输入加密密钥"
+                    >
+                    <button 
+                        onclick="generateRandomKey()" 
+                        class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-blue-500 transition"
+                        title="生成随机密钥"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-refresh-cw">
+                            <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
+                            <path d="M21 3v5h-5"/>
+                            <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/>
+                            <path d="M3 21v-5h5"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div>
+                <label for="inputText" class="block text-sm font-medium text-gray-400 mb-2">
+                    输入文本
+                </label>
+                <textarea 
+                    id="inputText" 
+                    rows="4" 
+                    class="w-full px-3 py-2 bg-gray-700 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-cyan-600"
+                    placeholder="输入要加密或解密的文本"
+                ></textarea>
+            </div>
+
+            <div class="flex space-x-4">
+                <button 
+                    onclick="encryptText()" 
+                    class="flex-1 bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-4 rounded-md transition duration-300 flex items-center justify-center space-x-2"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lock">
+                        <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                    <span>加密</span>
+                </button>
+                <button 
+                    onclick="decryptText()" 
+                    class="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-md transition duration-300 flex items-center justify-center space-x-2"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-unlock">
+                        <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+                        <path d="M7 11V7a5 5 0 0 1 9.9-1"/>
+                    </svg>
+                    <span>解密</span>
+                </button>
+            </div>
+
+            <div>
+                <label for="outputText" class="block text-sm font-medium text-gray-400 mb-2">
+                    结果
+                </label>
+                <div class="relative">
+                    <textarea 
+                        id="outputText" 
+                        rows="4" 
+                        readonly
+                        class="w-full px-3 py-2 bg-gray-700 border border-gray-700 rounded-md text-white pr-10"
+                    ></textarea>
+                    <div class="absolute right-2 top-2 flex space-x-2">
+                        <button 
+                            onclick="copyToClipboard()" 
+                            class="text-gray-500 hover:text-blue-500 tooltip transition"
+                        >
+                            <span class="tooltiptext">复制</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy">
+                                <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
+                                <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        
+
+    <script>
+        // Toast 通知系统
+        function showToast(message, type = 'info') {
+            const toastContainer = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            // 根据类型设置不同的颜色
+            const typeStyles = {
+                'success': 'bg-green-600',
+                'error': 'bg-red-600',
+                'warning': 'bg-yellow-600',
+                'info': 'bg-blue-600'
+            };
+
+            const bgColor = typeStyles[type] || typeStyles['info'];
+
+            toast.className = `toast ${bgColor} text-white px-4 py-2 rounded-lg shadow-lg transform transition-all duration-300 ease-in-out`;
+            toast.textContent = message;
+
+            toastContainer.appendChild(toast);
+
+            // 触发显示动画
+            requestAnimationFrame(() => {
+                toast.classList.add('show');
+            });
+
+            // 3秒后自动消失
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    toastContainer.removeChild(toast);
+                }, 300);
+            }, 3000);
+        }
+
+        async function generateRandomKey() {
+            const length = 16; // AES 密钥长度
+            const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()';
+            let key = '';
+            for (let i = 0; i < length; i++) {
+                const randomIndex = Math.floor(Math.random() * charset.length);
+                key += charset[randomIndex];
+            }
+            document.getElementById('secretKey').value = key;
+            showToast('随机密钥已生成', 'success');
+        }
+
+        async function encryptText() {
+            const secretKey = document.getElementById('secretKey').value;
+            const inputText = document.getElementById('inputText').value;
+            const outputText = document.getElementById('outputText');
+
+            if (!secretKey || !inputText) {
+                showToast('请输入密钥和文本', 'warning');
+                return;
+            }
+
+            try {
+                const encryptedText = await encrypt(inputText, secretKey);
+                outputText.value = encryptedText;
+                showToast('加密成功', 'success');
+            } catch (error) {
+                showToast('加密失败：' + error.message, 'error');
+            }
+        }
+
+        async function decryptText() {
+            const secretKey = document.getElementById('secretKey').value;
+            const inputText = document.getElementById('inputText').value;
+            const outputText = document.getElementById('outputText');
+
+            if (!secretKey || !inputText) {
+                showToast('请输入密钥和文本', 'warning');
+                return;
+            }
+
+            try {
+                const decryptedText = await decrypt(inputText, secretKey);
+                outputText.value = decryptedText;
+                showToast('解密成功', 'success');
+            } catch (error) {
+                showToast('解密失败：无效的文本或密钥', 'error');
+            }
+        }
+
+        async function encrypt(text, key) {
+            const encoder = new TextEncoder();
+            const keyData = encoder.encode(key);
+            const iv = window.crypto.getRandomValues(new Uint8Array(12)); // 生成随机 IV
+            const algorithm = { name: 'AES-GCM', iv: iv };
+
+            const cryptoKey = await window.crypto.subtle.importKey('raw', keyData, algorithm, false, ['encrypt']);
+            const encryptedData = await window.crypto.subtle.encrypt(algorithm, cryptoKey, encoder.encode(text));
+
+            // 将 IV 和加密数据组合并转换为 Base64
+            const combined = new Uint8Array(iv.length + encryptedData.byteLength);
+            combined.set(iv);
+            combined.set(new Uint8Array(encryptedData), iv.length);
+            return btoa(String.fromCharCode.apply(null, combined));
+        }
+
+        async function decrypt(encryptedText, key) {
+            const encoder = new TextEncoder();
+            const decoder = new TextDecoder();
+            const combined = new Uint8Array(atob(encryptedText).split('').map(c => c.charCodeAt(0)));
+
+            const iv = combined.slice(0, 12); // 提取 IV
+            const encryptedData = combined.slice(12); // 提取加密数据
+            const algorithm = { name: 'AES-GCM', iv: iv };
+
+            const keyData = encoder.encode(key);
+            const cryptoKey = await window.crypto.subtle.importKey('raw', keyData, algorithm, false, ['decrypt']);
+            const decryptedData = await window.crypto.subtle.decrypt(algorithm, cryptoKey, encryptedData);
+
+            return decoder.decode(decryptedData);
+        }
+
+        function copyToClipboard() {
+            const outputText = document.getElementById('outputText');
+            
+            if (!outputText.value) {
+                showToast('没有可复制的内容', 'warning');
+                return;
+            }
+
+            navigator.clipboard.writeText(outputText.value).then(() => {
+                showToast('已复制到剪贴板', 'success');
+            }).catch(err => {
+                console.error('复制失败', err);
+                showToast('复制失败', 'error');
+            });
+        }
+    </script>
+<script>window.parent.postMessage({ action: "ready" }, "*"); 
+ 
+window.console = new Proxy(console, {
+  get(target, prop) {
+    if (['log', 'warn', 'error'].includes(prop)) {
+      return new Proxy(target[prop], {
+        apply(fn, thisArg, args) {
+          fn.apply(thisArg, args);
+          window.parent.postMessage({ action: 'console', 
+            type: prop, 
+            args: args.map((arg) => {
+              try {
+                return JSON.stringify(arg).replace(/^["']|["']$/g, '');
+              } catch (e) {
+                return arg;
+              }
+            }) 
+          }, '*');
+        }
+      });
+    }
+    return target[prop];
+  }
+});
+</script></body>
+</html>
