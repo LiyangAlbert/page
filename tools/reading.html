@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>在读书目</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Morandi Color Palette - Soft, Muted Tones */
+            --bg-primary: #F0EAE3;      /* 柔和的米色 */
+            --text-primary: #4A4A4A;    /* 深灰色 */
+            --card-bg: #E6DED4;         /* 浅褐色卡片背景 */
+            --accent-soft-blue: #A4B8C4;  /* 柔和的灰蓝色 */
+            --accent-sage: #9CAF88;     /* 柔和的鼠尾草绿 */
+            --accent-dusty-rose: #C5A3A3; /* 粉灰色 */
+            --accent-pale-lavender: #B4A0C7; /* 柔和的薰衣草灰 */
+            --bg-dark-white: #F5F5F0;         /* 米白色 */
+            --card-white: #FFFFFF;            /* 白色 */
+
+            /*-border-color: #dee2e6;  浅灰边框 */
+            --hover-color: #FFFFFF; /* 悬停背景 */
+        }
+
+        body {
+            font-family: 'Noto Serif SC', serif;
+            background-color: var(--bg-dark-white);
+            color: var(--text-primary);
+        }
+        .container-card {
+            background-color: var(--card-white);
+            border-radius: 1rem;
+            padding: 2rem;
+            position: relative;
+            box-shadow: 0 0px 0px rgba(0,0,0,0.05);  /* 大卡片阴影 */
+        }
+        .book-card {
+            transition: all 0.3s ease;
+            border: 1px solid rgba(74,74,74,0.1);
+            background-color: white;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .book-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 15px rgba(0,0,0,0.05);
+            border-color: rgba(74,74,74,0.15);
+        }
+        .category-tag {
+            transition: all 0.3s ease;
+            background-color: var(--accent-soft-blue);
+            color: white;
+        }
+        .category-tag:hover {
+            transform: scale(1.05);
+            opacity: 0.9;
+        }
+        .modal-backdrop {
+            background-color: rgba(74,74,74,0.4);
+        }
+        .add-button {
+            transition: all 0.3s ease;
+            background-color: var(--accent-dusty-rose);
+        }
+        .add-button:hover {
+            transform: rotate(45deg);
+            background-color: var(--accent-pale-lavender);
+        }
+        .note-text {
+            font-style: italic;
+            color: var(--text-primary);
+            opacity: 0.7;
+        }
+        @media (min-width: 1024px) {
+            .container-card {
+                max-width: 1000px;
+            }
+            .book-card {
+                min-height: 200px;
+            }
+        }
+
+        /* 状态按钮颜色 */
+        .status-want {
+            background-color: var(--accent-dusty-rose);
+            color: white;
+        }
+        .status-reading {
+            background-color: var(--accent-sage);
+            color: white;
+        }
+        .status-finished {
+            background-color: var(--accent-soft-blue);
+            color: white;
+        }
+
+        /* 链接悬停效果 */
+      .links a:hover {
+        background-color: var(--hover-color);
+        color: var(--text-primary);
+        transform: translateY(-3px);
+      }
+
+      .links {
+        text-align: center;
+        margin-top: 30px;
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      }
+
+      .links a {
+        display: inline-block;
+        margin: 0 10px;
+        color: var(--text-secondary);
+        text-decoration: none;
+        padding: 10px 15px;
+        border-radius: 4px;
+        border: 1px solid var(--border-color);
+        transition: all 0.3s ease;
+      }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <div id="app" class="container mx-auto px-4 py-8 flex-grow">
+        <header class="text-center mb-8 ">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-700 mb-2 ">翻书风清</h1>
+            <p class="text-gray-500 italic text-sm md:text-base">学向勤中得，萤窗万卷书。</p>
+        </header>
+
+        <div class="container-card mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-4">
+                <div class="flex flex-wrap justify-center gap-2 mb-4 md:mb-0">
+                    <button 
+                        @click="filterStatus = 'all'; filterCategory = 'all'" 
+                        :class="filterStatus === 'all' && filterCategory === 'all' ? 'bg-[#C5A3A3] text-white' : 'bg-[#C5A3A3]/30 text-gray-600'"
+                        class="px-3 py-1 rounded-full transition-colors text-sm hover:bg-[#C5A3A3]/50"
+                    >
+                        全部
+                    </button>
+                    <button 
+                        @click="filterStatus = 'want'" 
+                        :class="filterStatus === 'want' ? 'bg-[#C5A3A3] text-white' : 'bg-[#C5A3A3]/30 text-gray-600'"
+                        class="px-3 py-1 rounded-full transition-colors text-sm hover:bg-[#C5A3A3]/50"
+                    >
+                        想读
+                    </button>
+                    <button 
+                        @click="filterStatus = 'reading'" 
+                        :class="filterStatus === 'reading' ? 'bg-[#9CAF88] text-white' : 'bg-[#9CAF88]/30 text-gray-600'"
+                        class="px-3 py-1 rounded-full transition-colors text-sm hover:bg-[#9CAF88]/50"
+                    >
+                        在读
+                    </button>
+                    <button 
+                        @click="filterStatus = 'finished'" 
+                        :class="filterStatus === 'finished' ? 'bg-[#A4B8C4] text-white' : 'bg-[#A4B8C4]/30 text-gray-600'"
+                        class="px-3 py-1 rounded-full transition-colors text-sm hover:bg-[#A4B8C4]/50"
+                    >
+                        已读
+                    </button>
+                </div>
+            </div>
+
+            <div class="mb-4 flex flex-wrap gap-2">
+                <div 
+                    v-for="category in categories" 
+                    :key="category"
+                    @click="filterCategory = category"
+                    class="category-tag px-3 py-1 rounded-full text-sm cursor-pointer transition-all"
+                    :class="filterCategory === category 
+                        ? 'bg-[#B4A0C7] text-white font-semibold' 
+                        : 'bg-[#A4B8C4]/50 text-white hover:bg-[#A4B8C4]'"
+                >
+                    {{ category }}
+                </div>
+            </div>
+            <div v-if="filteredBooks.length === 0" class="text-center text-gray-500 py-8">
+                <p class="text-base md:text-xl">书架空空如也，何不添置几本好书？</p>
+            </div>
+            <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                <div 
+                    v-for="(book, index) in filteredBooks" 
+                    :key="index" 
+                    class="book-card border border-gray-200 rounded-lg p-4 flex flex-col justify-between"
+                >
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <h3 class="text-base md:text-lg font-semibold text-gray-800">{{ book.title }}</h3>
+                            <p class="text-xs md:text-sm text-gray-500">{{ book.author }}</p>
+                        </div>
+                        <div class="flex flex-col items-end">
+                            <span 
+                                class="px-2 py-1 rounded-full text-xs font-medium mb-1"
+                                :class="{
+                                    'status-want': book.status === 'want',
+                                    'status-reading': book.status === 'reading',
+                                    'status-finished': book.status === 'finished'
+                                }"
+                            >
+                                {{ getStatusText(book.status) }}
+                            </span>
+                            <span 
+                                class="px-2 py-1 rounded-full text-xs font-medium bg-gray-200 text-gray-700"
+                            >
+                                {{ book.category }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- 笔记区域 -->
+                    <div 
+                        v-if="book.note" 
+                        class="note-text text-sm italic mb-3 px-2 py-1 bg-gray-50 rounded"
+                    >
+                        "{{ book.note }}"
+                    </div>
+
+                    <div class="flex justify-between items-center mt-auto">
+                        <button 
+                            @click="editNote(index)" 
+                            class="text-gray-600 hover:text-gray-800 transition-colors text-sm"
+                        >
+                            {{ book.note ? '编辑笔记' : '添加笔记' }}
+                        </button>
+                        <div class="flex space-x-2">
+                            <button 
+                                @click="changeStatus(index)" 
+                                class="text-gray-600 hover:text-gray-800 transition-colors text-sm"
+                            >
+                                更改状态
+                            </button>
+                            <button 
+                                @click="deleteBook(index)" 
+                                class="text-gray-500 hover:text-red-600 transition-colors text-sm"
+                            >
+                                移除
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 添加书籍悬浮按钮 -->
+            <div 
+                @click="showModal = true" 
+                class="add-button fixed bottom-8 right-8 w-12 h-12 bg-gray-700 text-white rounded-full flex items-center justify-center cursor-pointer"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+            </div>
+
+            <!-- 笔记编辑模态框 -->
+            <div 
+                v-if="showNoteModal" 
+                class="fixed inset-0 z-50 flex items-center justify-center modal-backdrop"
+                @click.self="closeNoteModal"
+            >
+                <div 
+                    class="bg-white rounded-2xl p-6 w-11/12 max-w-md mx-auto shadow-xl"
+                    @click.stop
+                >
+                    <h2 class="text-xl font-semibold mb-4 text-gray-700">{{ currentBook.title }} - 笔记</h2>
+                    <textarea 
+                        v-model="currentBook.note" 
+                        placeholder="记录你的简要书评、片段或心得..." 
+                        rows="4"
+                        class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:border-gray-400 transition-colors"
+                    ></textarea>
+                    <div class="flex justify-end space-x-2 mt-4">
+                        <button 
+                            @click="closeNoteModal" 
+                            class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                        >
+                            取消
+                        </button>
+                        <button 
+                            @click="saveNote" 
+                            class="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 transition-colors"
+                        >
+                            保存笔记
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 原有的添加书籍模态框 -->
+            <div 
+                v-if="showModal" 
+                class="fixed inset-0 z-50 flex items-center justify-center modal-backdrop"
+                @click.self="showModal = false"
+            >
+                <div 
+                    class="bg-white rounded-2xl p-6 w-11/12 max-w-md mx-auto shadow-xl"
+                    @click.stop
+                >
+                    <h2 class="text-xl font-semibold mb-4 text-gray-700">添加新书</h2>
+                    <div class="space-y-4">
+                        <input 
+                            v-model="newBook.title" 
+                            placeholder="书名" 
+                            class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:border-gray-400 transition-colors"
+                        >
+                        <input 
+                            v-model="newBook.author" 
+                            placeholder="作者" 
+                            class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:border-gray-400 transition-colors"
+                        >
+                        <select 
+                            v-model="newBook.status" 
+                            class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:border-gray-400 transition-colors"
+                        >
+                            <option value="want">想读</option>
+                            <option value="reading">在读</option>
+                            <option value="finished">已读</option>
+                        </select>
+                        <select 
+                            v-model="newBook.category" 
+                            class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:border-gray-400 transition-colors"
+                        >
+                            <option value="文学">文学</option>
+                            <option value="科幻">科幻</option>
+                            <option value="专业">专业</option>
+                            <option value="科技">科技</option>
+                            <option value="其他">其他</option>
+                        </select>
+                        <textarea 
+                            v-model="newBook.note" 
+                            placeholder="可选：添加初始笔记" 
+                            rows="3"
+                            class="w-full border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:border-gray-400 transition-colors"
+                        ></textarea>
+                        <div class="flex justify-end space-x-2">
+                            <button 
+                                @click="showModal = false" 
+                                class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                            >
+                                取消
+                            </button>
+                            <button 
+                                @click="addBook" 
+                                class="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 transition-colors"
+                            >
+                                确认添加
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="links js-animate">
+        <a href="../index.html">返回主页</a>
+        <a href="https://github.com/liyangalbert">GitHub</a>
+      </div>
+
+    <footer class="py-4 mt-8">
+        <div class="container mx-auto text-center text-gray-600">
+            <p class="text-xs md:text-sm">© 2025 翻书风清 | 记录每一段阅读旅程</p>
+        </div>
+    </footer>
+
+    <script>
+        const { createApp, ref, computed } = Vue
+
+        createApp({
+            setup() {
+                const books = ref(JSON.parse(localStorage.getItem('myBooks') || '[]'))
+                const newBook = ref({ title: '', author: '', status: 'want', category: '文学', note: '' })
+                const filterStatus = ref('all')
+                const filterCategory = ref('all')
+                const showModal = ref(false)
+                const showNoteModal = ref(false)
+                const currentBook = ref(null)
+
+                const categories = ['文学', '科幻', '专业', '科技', '其他']
+
+                const filteredBooks = computed(() => {
+                    return books.value.filter(book => 
+                        (filterStatus.value === 'all' || book.status === filterStatus.value) &&
+                        (filterCategory.value === 'all' || book.category === filterCategory.value)
+                    )
+                })
+
+                const addBook = () => {
+                    if (newBook.value.title.trim() && newBook.value.author.trim()) {
+                        books.value.push({ ...newBook.value })
+                        newBook.value = { title: '', author: '', status: 'want', category: '文学', note: '' }
+                        saveBooks()
+                        showModal.value = false
+                    }
+                }
+
+                const deleteBook = (index) => {
+                    const globalIndex = books.value.findIndex(b => 
+                        b.title === filteredBooks.value[index].title && 
+                        b.author === filteredBooks.value[index].author
+                    )
+                    books.value.splice(globalIndex, 1)
+                    saveBooks()
+                }
+
+                const changeStatus = (index) => {
+                    const statuses = ['want', 'reading', 'finished']
+                    const globalIndex = books.value.findIndex(b => 
+                        b.title === filteredBooks.value[index].title && 
+                        b.author === filteredBooks.value[index].author
+                    )
+                    const currentStatusIndex = statuses.indexOf(books.value[globalIndex].status)
+                    books.value[globalIndex].status = statuses[(currentStatusIndex + 1) % statuses.length]
+                    saveBooks()
+                }
+
+                const editNote = (index) => {
+                    currentBook.value = filteredBooks.value[index]
+                    showNoteModal.value = true
+                }
+
+                const saveNote = () => {
+                    const globalIndex = books.value.findIndex(b => 
+                        b.title === currentBook.value.title && 
+                        b.author === currentBook.value.author
+                    )
+                    books.value[globalIndex].note = currentBook.value.note
+                    saveBooks()
+                    showNoteModal.value = false
+                }
+
+                const closeNoteModal = () => {
+                    showNoteModal.value = false
+                    currentBook.value = null
+                }
+
+                const saveBooks = () => {
+                    localStorage.setItem('myBooks', JSON.stringify(books.value))
+                }
+
+                const getStatusText = (status) => {
+                    const statusMap = {
+                        'want': '想读',
+                        'reading': '在读',
+                        'finished': '已读'
+                    }
+                    return statusMap[status]
+                }
+
+                return {
+                    books,
+                    newBook,
+                    filterStatus,
+                    filterCategory,
+                    filteredBooks,
+                    categories,
+                    showModal,
+                    showNoteModal,
+                    currentBook,
+                    addBook,
+                    deleteBook,
+                    changeStatus,
+                    editNote,
+                    saveNote,
+                    closeNoteModal,
+                    getStatusText
+                }
+            }
+        }).mount('#app')
+    </script>
+<script>window.parent.postMessage({ action: "ready" }, "*"); 
+ 
+window.console = new Proxy(console, {
+  get(target, prop) {
+    if (['log', 'warn', 'error'].includes(prop)) {
+      return new Proxy(target[prop], {
+        apply(fn, thisArg, args) {
+          fn.apply(thisArg, args);
+          window.parent.postMessage({ action: 'console', 
+            type: prop, 
+            args: args.map((arg) => {
+              try {
+                return JSON.stringify(arg).replace(/^["']|["']$/g, '');
+              } catch (e) {
+                return arg;
+              }
+            }) 
+          }, '*');
+        }
+      });
+    }
+    return target[prop];
+  }
+});
+
+ // 动画效果
+ const animateElements = document.querySelectorAll(".js-animate");
+
+ const observer = new IntersectionObserver(
+   (entries) => {
+     entries.forEach((entry) => {
+       if (entry.isIntersecting) {
+         entry.target.style.opacity = "1";
+         entry.target.style.transform = "translateY(0) translateX(0)";
+         observer.unobserve(entry.target);
+       }
+     });
+   },
+   { threshold: 0.1 }
+ );
+
+ animateElements.forEach((el) => {
+   observer.observe(el);
+ });
+</script>
+</body>
+</html>
