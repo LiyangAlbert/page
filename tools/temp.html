@@ -1,0 +1,743 @@
+<!DOCTYPE html>  
+<html lang="zh-CN">  
+<head>  
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+    <title>Password Manager Pro</title>  
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">  
+    <style>  
+        :root {  
+            --bg-primary: #ffffff;  
+            --bg-secondary: #f5f5f5;  
+            --text-primary: #333333;  
+            --text-secondary: #666666;  
+            --accent-color: #007aff;  
+            --border-color: #e0e0e0;  
+            --system-pwd: #FFB6C1;  
+            --system-email: #98FB98;  
+            --system-web: #87CEEB;  
+            --scrollbar-bg: rgba(0, 0, 0, 0.05);  
+            --scrollbar-thumb: rgba(0, 0, 0, 0.2);  
+            --scrollbar-thumb-hover: rgba(0, 0, 0, 0.3);  
+        }  
+
+        [data-theme="dark"] {  
+            --bg-primary: #1a1a1a;  
+            --bg-secondary: #2d2d2d;  
+            --text-primary: #ffffff;  
+            --text-secondary: #b3b3b3;  
+            --accent-color: #0a84ff;  
+            --border-color: #404040;  
+            --scrollbar-bg: rgba(255, 255, 255, 0.05);  
+            --scrollbar-thumb: rgba(255, 255, 255, 0.2);  
+            --scrollbar-thumb-hover: rgba(255, 255, 255, 0.3);  
+        }  
+
+        * {  
+            margin: 0;  
+            padding: 0;  
+            box-sizing: border-box;  
+        }  
+
+        body {  
+            font-family: 'Inter', sans-serif;  
+            background-color: var(--bg-primary);  
+            color: var(--text-primary);  
+            line-height: 1.6;  
+            transition: all 0.3s ease;  
+            display: flex;  
+            flex-direction: column;  
+            align-items: center;  
+            min-height: 100vh;  
+        }  
+
+        #chat-container {  
+            width: 800px;  
+            max-width: 95%;  
+            height: calc(100vh - 120px);  
+            overflow-y: overlay;  
+            padding: 20px;  
+            margin: 20px auto 80px auto;  
+            scrollbar-gutter: stable;  
+        }  
+
+        #chat-container::-webkit-scrollbar {  
+            width: 10px;  
+            background-color: transparent;  
+        }  
+
+        #chat-container::-webkit-scrollbar-track {  
+            background-color: transparent;  
+            border-radius: 10px;  
+            margin: 5px;  
+        }  
+
+        #chat-container::-webkit-scrollbar-thumb {  
+            background-color: var(--scrollbar-thumb);  
+            border-radius: 10px;  
+            border: 2px solid transparent;  
+            background-clip: padding-box;  
+            transition: all 0.2s ease;  
+        }  
+
+        #chat-container::-webkit-scrollbar-thumb:hover {  
+            background-color: var(--scrollbar-thumb-hover);  
+        }  
+
+        #chat-container:hover::-webkit-scrollbar-thumb {  
+            background-color: var(--scrollbar-thumb);  
+        }  
+
+        #input-container {  
+            position: fixed;  
+            bottom: 0;  
+            width: 800px;  
+            max-width: 95%;  
+            padding: 20px;  
+            background-color: var(--bg-primary);  
+            border-top: 1px solid var(--border-color);  
+            display: flex;  
+            gap: 10px;  
+            border-radius: 16px 16px 0 0;  
+            backdrop-filter: blur(10px);  
+            -webkit-backdrop-filter: blur(10px);  
+        }  
+
+        #command-input {  
+            flex: 1;  
+            padding: 12px 16px;  
+            border: 1px solid var(--border-color);  
+            border-radius: 24px;  
+            background-color: var(--bg-secondary);  
+            color: var(--text-primary);  
+            font-size: 16px;  
+            outline: none;  
+            transition: all 0.3s ease;  
+        }  
+
+        #command-input:focus {  
+            border-color: var(--accent-color);  
+            box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.1);  
+        }  
+
+        #send-btn {  
+            padding: 12px 24px;  
+            background-color: var(--accent-color);  
+            color: white;  
+            border: none;  
+            border-radius: 24px;  
+            cursor: pointer;  
+            font-size: 16px;  
+            font-weight: 500;  
+            transition: all 0.3s ease;  
+        }  
+
+        #send-btn:hover {  
+            transform: scale(1.05);  
+            box-shadow: 0 2px 8px rgba(0, 122, 255, 0.2);  
+        }  
+
+        .message-container {  
+            display: flex;  
+            gap: 12px;  
+            margin-bottom: 20px;  
+            opacity: 0;  
+            transform: translateY(20px);  
+            transition: all 0.3s ease;  
+        }  
+
+        .message-container.show {  
+            opacity: 1;  
+            transform: translateY(0);  
+        }  
+
+        .avatar {  
+            width: 40px;  
+            height: 40px;  
+            border-radius: 50%;  
+            display: flex;  
+            align-items: center;  
+            justify-content: center;  
+            font-weight: 600;  
+            color: var(--text-primary);  
+            flex-shrink: 0;  
+            font-size: 20px;  
+            transition: all 0.3s ease;  
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);  
+        }  
+
+        .system-pwd {  
+            background-color: var(--system-pwd);  
+        }  
+
+        .system-email {  
+            background-color: var(--system-email);  
+        }  
+
+        .system-web {  
+            background-color: var(--system-web);  
+        }  
+
+        .user {  
+            background-color: var(--bg-secondary);  
+        }  
+
+        .message-content {  
+            padding: 12px 16px;  
+            border-radius: 16px;  
+            max-width: calc(100% - 52px);  
+            background: transparent;  
+            transition: all 0.3s ease;  
+        }  
+
+        .system .message-content {  
+            background-color: var(--bg-secondary);  
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);  
+        }  
+
+        .message-header {  
+            display: flex;  
+            align-items: center;  
+            gap: 8px;  
+            margin-bottom: 4px;  
+            color: var(--text-secondary);  
+            font-size: 14px;  
+        }  
+
+        .badge {  
+            background-color: var(--accent-color);  
+            color: white;  
+            padding: 2px 8px;  
+            border-radius: 12px;  
+            font-size: 12px;  
+            box-shadow: 0 2px 4px rgba(0, 122, 255, 0.2);  
+        }  
+
+        .message-text {  
+            white-space: pre-wrap;  
+            word-break: break-word;  
+        }  
+
+        .verification-buttons {  
+            display: flex;  
+            gap: 8px;  
+            margin-top: 12px;  
+        }  
+
+        .verify-btn {  
+            padding: 8px 16px;  
+            border-radius: 20px;  
+            border: none;  
+            cursor: pointer;  
+            font-size: 14px;  
+            font-weight: 500;  
+            transition: all 0.3s ease;  
+        }  
+
+        .verify-btn:hover {  
+            transform: scale(1.05);  
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);  
+        }  
+
+        .confirm {  
+            background-color: var(--accent-color);  
+            color: white;  
+        }  
+
+        .cancel {  
+            background-color: var(--text-secondary);  
+            color: white;  
+        }  
+
+        .typing-indicator {  
+            opacity: 1;  
+            transform: translateY(0);  
+        }  
+
+        .typing-dots {  
+            display: flex;  
+            gap: 4px;  
+            padding: 12px 16px;  
+            background-color: var(--bg-secondary);  
+            border-radius: 16px;  
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);  
+        }  
+
+        .dot {  
+            width: 8px;  
+            height: 8px;  
+            border-radius: 50%;  
+            background-color: var(--text-secondary);  
+            animation: bounce 1.4s infinite ease-in-out;  
+        }  
+
+        .dot:nth-child(1) { animation-delay: 0s; }  
+        .dot:nth-child(2) { animation-delay: 0.2s; }  
+        .dot:nth-child(3) { animation-delay: 0.4s; }  
+
+        @keyframes bounce {  
+            0%, 80%, 100% { transform: translateY(0); }  
+            40% { transform: translateY(-8px); }  
+        }  
+    </style>  
+</head>  
+<body>  
+    <div id="chat-container"></div>  
+    <div id="input-container">  
+        <input id="command-input" type="text" placeholder="输入命令 (help 查看帮助)..." />  
+        <button id="send-btn">发送</button>  
+    </div>
+    <script>  
+        document.addEventListener('DOMContentLoaded', function() {  
+            const chatContainer = document.getElementById("chat-container");  
+            const commandInput = document.getElementById("command-input");  
+            const sendBtn = document.getElementById("send-btn");  
+
+            // 存储系统  
+            const store = {  
+                passwords: {},  
+                emails: {},  
+                websites: {},  
+                settings: {  
+                    theme: 'light',  
+                    animations: true,  
+                    securityCheck: true  
+                },  
+                verificationCode: '000000'  
+            };  
+
+            // 角色配置  
+            const roles = {  
+                pwd: {  
+                    name: '密码管理',  
+                    avatar: '🔑',  
+                    class: 'system-pwd',  
+                    commands: ['add', 'delete', 'update', 'get']  
+                },  
+                email: {  
+                    name: '邮箱管理',  
+                    avatar: '📧',  
+                    class: 'system-email',  
+                    commands: ['add-email', 'delete-email', 'update-email', 'get-email']  
+                },  
+                web: {  
+                    name: '网站管理',  
+                    avatar: '🌐',  
+                    class: 'system-web',  
+                    commands: ['add-site', 'delete-site', 'update-site', 'get-site']  
+                }  
+            };  
+
+            // 工具函数  
+            function sleep(ms) {  
+                return new Promise(resolve => setTimeout(resolve, ms));  
+            }  
+
+            // 创建消息元素  
+            function createMessageElement(text, sender = "system", role = "pwd") {  
+                const container = document.createElement("div");  
+                container.className = `message-container ${sender}`;  
+                if (!store.settings.animations) {  
+                    container.classList.add('show');  
+                }  
+
+                const avatar = document.createElement("div");  
+                avatar.className = `avatar ${sender === "system" ? roles[role].class : "user"}`;  
+                avatar.textContent = sender === "system" ? roles[role].avatar : "😊";  
+
+                const content = document.createElement("div");  
+                content.className = "message-content";  
+
+                const header = document.createElement("div");  
+                header.className = "message-header";  
+                
+                if (sender === "system") {  
+                    const name = document.createElement("span");  
+                    name.textContent = roles[role].name;  
+                    const badge = document.createElement("span");  
+                    badge.className = "badge";  
+                    badge.textContent = "AI";  
+                    header.appendChild(name);  
+                    header.appendChild(badge);  
+                }  
+
+                const messageText = document.createElement("div");  
+                messageText.className = "message-text";  
+                messageText.textContent = text;  
+
+                content.appendChild(header);  
+                content.appendChild(messageText);  
+                container.appendChild(avatar);  
+                container.appendChild(content);  
+
+                return container;  
+            }  
+
+            // 添加消息  
+            async function addMessage(text, sender = "system", role = "pwd") {  
+                const messageElement = createMessageElement(text, sender, role);  
+                chatContainer.appendChild(messageElement);  
+                
+                if (store.settings.animations) {  
+                    await sleep(50);  
+                    messageElement.classList.add('show');  
+                }  
+                
+                chatContainer.scrollTop = chatContainer.scrollHeight;  
+                return messageElement;  
+            }  
+
+            // 添加验证按钮  
+            function addVerificationButtons(messageElement) {  
+                const buttonsContainer = document.createElement("div");  
+                buttonsContainer.className = "verification-buttons";  
+                
+                const confirmBtn = document.createElement("button");  
+                confirmBtn.className = "verify-btn confirm";  
+                confirmBtn.textContent = "确认";  
+                
+                const cancelBtn = document.createElement("button");  
+                cancelBtn.className = "verify-btn cancel";  
+                cancelBtn.textContent = "取消";  
+                
+                buttonsContainer.appendChild(confirmBtn);  
+                buttonsContainer.appendChild(cancelBtn);  
+                
+                const messageContent = messageElement.querySelector(".message-content");  
+                messageContent.appendChild(buttonsContainer);  
+                
+                return new Promise((resolve) => {  
+                    confirmBtn.onclick = () => {  
+                        buttonsContainer.remove();  
+                        resolve(true);  
+                    };  
+                    cancelBtn.onclick = () => {  
+                        buttonsContainer.remove();  
+                        resolve(false);  
+                    };  
+                });  
+            }  
+
+            // 显示打字动画  
+            function showTypingIndicator(role = 'pwd') {  
+                const container = document.createElement("div");  
+                container.className = "message-container typing-indicator";  
+                
+                const avatar = document.createElement("div");  
+                avatar.className = `avatar ${roles[role].class}`;  
+                avatar.textContent = roles[role].avatar;  
+                
+                const dots = document.createElement("div");  
+                dots.className = "typing-dots";  
+                for (let i = 0; i < 3; i++) {  
+                    const dot = document.createElement("div");  
+                    dot.className = "dot";  
+                    dots.appendChild(dot);  
+                }  
+                
+                container.appendChild(avatar);  
+                container.appendChild(dots);  
+                chatContainer.appendChild(container);  
+                return container;  
+            }  
+
+            // 主题切换  
+            function toggleTheme() {  
+                store.settings.theme = store.settings.theme === 'dark' ? 'light' : 'dark';  
+                document.body.setAttribute('data-theme', store.settings.theme);  
+                return `✨ 已切换至${store.settings.theme === 'dark' ? '深色' : '浅色'}主题`;  
+            }  
+
+            // 动画开关  
+            function toggleAnimation() {  
+                store.settings.animations = !store.settings.animations;  
+                return `✨ 已${store.settings.animations ? '开启' : '关闭'}动画效果`;  
+            }  
+
+            // 清空聊天  
+            function clearChat() {  
+                chatContainer.innerHTML = '';  
+                return '🧹 已清空聊天记录';  
+            }  
+
+            // 密码管理功能  
+            async function addPassword(args) {  
+                if (args.length < 2) {  
+                    return '❌ 格式错误\n正确格式: add site password';  
+                }  
+                const site = args[0];  
+                const password = args.slice(1).join(' ');  
+                store.passwords[site] = password;  
+                return `✅ 已成功添加 ${site} 的密码`;  
+            }  
+
+            async function deletePassword(args) {  
+                if (args.length !== 1) {  
+                    return '❌ 格式错误\n正确格式: delete site';  
+                }  
+                const site = args[0];  
+                if (!store.passwords[site]) {  
+                    return `❌ ${site} 的密码不存在`;  
+                }  
+                
+                const messageElement = await addMessage(`⚠️ 确认删除 ${site} 的密码吗？`, 'system', 'pwd');  
+                const confirmed = await addVerificationButtons(messageElement);  
+                
+                if (confirmed) {  
+                    delete store.passwords[site];  
+                    return `✅ 已删除 ${site} 的密码`;  
+                }  
+                return '❌ 已取消删除操作';  
+            }  
+
+            async function updatePassword(args) {  
+                if (args.length < 2) {  
+                    return '❌ 格式错误\n正确格式: update site newpassword';  
+                }  
+                const site = args[0];  
+                if (!store.passwords[site]) {  
+                    return `❌ ${site} 的密码不存在`;  
+                }  
+                const newPassword = args.slice(1).join(' ');  
+                store.passwords[site] = newPassword;  
+                return `✅ 已更新 ${site} 的密码`;  
+            }  
+
+            async function getPassword(args) {  
+                if (args.length !== 1) {  
+                    return '❌ 格式错误\n正确格式: get site';  
+                }  
+                const site = args[0];  
+                if (!store.passwords[site]) {  
+                    return `❌ ${site} 的密码不存在`;  
+                }  
+                
+                if (store.settings.securityCheck) {  
+                    const messageElement = await addMessage('🔐 请输入验证码以查看密码\n演示验证码: 000000', 'system', 'pwd');  
+                    const confirmed = await addVerificationButtons(messageElement);  
+                    if (!confirmed) {  
+                        return '❌ 已取消查看操作';  
+                    }  
+                }  
+                
+                return `🔑 ${site} 的密码是:\n${store.passwords[site]}`;  
+            }  
+
+            // 邮箱管理功能  
+            async function addEmail(args) {  
+                if (args.length < 2) {  
+                    return '❌ 格式错误\n正确格式: add-email name address';  
+                }  
+                const name = args[0];  
+                const email = args.slice(1).join(' ');  
+                store.emails[name] = email;  
+                return `✅ 已添加 ${name} 的邮箱: ${email}`;  
+            }  
+
+            async function deleteEmail(args) {  
+                if (args.length !== 1) {  
+                    return '❌ 格式错误\n正确格式: delete-email name';  
+                }  
+                const name = args[0];  
+                if (!store.emails[name]) {  
+                    return `❌ ${name} 的邮箱不存在`;  
+                }  
+                delete store.emails[name];  
+                return `✅ 已删除 ${name} 的邮箱`;  
+            }  
+
+            async function updateEmail(args) {  
+                if (args.length < 2) {  
+                    return '❌ 格式错误\n正确格式: update-email name newaddress';  
+                }  
+                const name = args[0];  
+                if (!store.emails[name]) {  
+                    return `❌ ${name} 的邮箱不存在`;  
+                }  
+                const newEmail = args.slice(1).join(' ');  
+                store.emails[name] = newEmail;  
+                return `✅ 已更新 ${name} 的邮箱为: ${newEmail}`;  
+            }  
+
+            async function getEmail(args) {  
+                if (args.length !== 1) {  
+                    return '❌ 格式错误\n正确格式: get-email name';  
+                }  
+                const name = args[0];  
+                if (!store.emails[name]) {  
+                    return `❌ ${name} 的邮箱不存在`;  
+                }  
+                return `📧 ${name} 的邮箱是: ${store.emails[name]}`;  
+            }  
+
+            // 网站管理功能  
+            async function addWebsite(args) {  
+                if (args.length < 2) {  
+                    return '❌ 格式错误\n正确格式: add-site name url';  
+                }  
+                const name = args[0];  
+                const url = args.slice(1).join(' ');  
+                store.websites[name] = url;  
+                return `✅ 已添加 ${name} 的网址: ${url}`;  
+            }  
+
+            async function deleteWebsite(args) {  
+                if (args.length !== 1) {  
+                    return '❌ 格式错误\n正确格式: delete-site name';  
+                }  
+                const name = args[0];  
+                if (!store.websites[name]) {  
+                    return `❌ ${name} 的网址不存在`;  
+                }  
+                delete store.websites[name];  
+                return `✅ 已删除 ${name} 的网址`;  
+            }  
+
+            async function updateWebsite(args) {  
+                if (args.length < 2) {  
+                    return '❌ 格式错误\n正确格式: update-site name newurl';  
+                }  
+                const name = args[0];  
+                if (!store.websites[name]) {  
+                    return `❌ ${name} 的网址不存在`;  
+                }  
+                const newUrl = args.slice(1).join(' ');  
+                store.websites[name] = newUrl;  
+                return `✅ 已更新 ${name} 的网址为: ${newUrl}`;  
+            }  
+
+            async function getWebsite(args) {  
+                if (args.length !== 1) {  
+                    return '❌ 格式错误\n正确格式: get-site name';  
+                }  
+                const name = args[0];  
+                if (!store.websites[name]) {  
+                    return `❌ ${name} 的网址不存在`;  
+                }  
+                return `🌐 ${name} 的网址是: ${store.websites[name]}`;  
+            }  
+
+            // 帮助信息  
+            function showHelp() {  
+                return `🤖 可用命令列表：  
+
+🛠️ 系统命令：  
+• help - 显示此帮助信息  
+• theme - 切换深色/浅色主题  
+• animation - 开启/关闭动画效果  
+• clear - 清空聊天记录  
+• about - 关于本应用  
+
+🔑 密码管理：  
+• add site password - 添加密码  
+• delete site - 删除密码  
+• update site newpassword - 更新密码  
+• get site - 查看密码  
+
+📧 邮箱管理：  
+• add-email name address - 添加邮箱  
+• delete-email name - 删除邮箱  
+• update-email name newaddress - 更新邮箱  
+• get-email name - 查看邮箱  
+
+🌐 网站管理：  
+• add-site name url - 添加网站  
+• delete-site name - 删除网站  
+• update-site name newurl - 更新网站  
+• get-site name - 查看网站  
+
+✨ 示例：  
+add github mypassword123  
+get-email work  
+add-site blog https://myblog.com`;  
+            }  
+
+            // 关于信息  
+            function showAbout() {  
+                return `✨ 密码管理器 Pro v1.0  
+
+🎯 功能特点：  
+• 多角色管理系统  
+• 安全验证机制  
+• 深色/浅色主题  
+• 动画效果  
+• 支持密码/邮箱/网站管理  
+
+👨‍💻 作者：AI Assistant  
+📅 更新日期：2025-02-05`;  
+            }  
+
+            // 命令配置  
+            const commands = {  
+                help: { handler: showHelp },  
+                theme: { handler: toggleTheme },  
+                animation: { handler: toggleAnimation },  
+                clear: { handler: clearChat },  
+                about: { handler: showAbout },  
+                add: { handler: addPassword, role: 'pwd' },  
+                delete: { handler: deletePassword, role: 'pwd' },  
+                update: { handler: updatePassword, role: 'pwd' },  
+                get: { handler: getPassword, role: 'pwd' },  
+                'add-email': { handler: addEmail, role: 'email' },  
+                'delete-email': { handler: deleteEmail, role: 'email' },  
+                'update-email': { handler: updateEmail, role: 'email' },  
+                'get-email': { handler: getEmail, role: 'email' },  
+                'add-site': { handler: addWebsite, role: 'web' },  
+                'delete-site': { handler: deleteWebsite, role: 'web' },  
+                'update-site': { handler: updateWebsite, role: 'web' },  
+                'get-site': { handler: getWebsite, role: 'web' }  
+            };  
+
+            // 命令处理  
+            async function processCommand(input) {  
+                const trimmedInput = input.trim();  
+                if (trimmedInput === "") return;  
+                
+                await addMessage(trimmedInput, "user");  
+                
+                const [cmd, ...args] = trimmedInput.toLowerCase().split(" ");  
+                
+                if (commands[cmd]) {  
+                    const command = commands[cmd];  
+                    const role = command.role || 'pwd';  
+                    
+                    if (store.settings.animations) {  
+                        const indicator = showTypingIndicator(role);  
+                        await sleep(1000);  
+                        indicator.remove();  
+                    }  
+                    
+                    const response = await command.handler(args);  
+                    await addMessage(response, "system", role);  
+                } else {  
+                    await addMessage("❌ 未知命令，输入 help 查看可用命令", "system", "pwd");  
+                }  
+            }  
+
+            // 事件监听  
+            commandInput.addEventListener("keyup", async function(event) {  
+                if (event.key === "Enter") {  
+                    const input = commandInput.value;  
+                    commandInput.value = "";  
+                    await processCommand(input);  
+                }  
+            });  
+
+            sendBtn.addEventListener("click", async function() {  
+                const input = commandInput.value;  
+                commandInput.value = "";  
+                await processCommand(input);  
+            });  
+
+            // 初始化  
+            async function initialize() {  
+                document.body.setAttribute('data-theme', store.settings.theme);  
+                await addMessage("👋 欢迎使用密码管理器 Pro\n输入 help 查看所有可用命令", "system", "pwd");  
+            }  
+
+            // 启动应用  
+            initialize();  
+        });  
+    </script>  
+</body>  
+</html>  
